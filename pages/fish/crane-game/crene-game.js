@@ -142,7 +142,16 @@ const formElement = document.getElementById('restrictedForm');
 
 //タイマーの更新と処理
 function updateTimer() {
-    timerElement.textContent = `残り時間: ${remainingTime}秒`;
+   const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+
+    //分と秒を2桁表示
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+    const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+
+    timerElement.textContent = `${formattedMinutes}:${formattedSeconds}`;
+    
+
     if (remainingTime <= 0) {
         // タイマーが0になったら時間切れ
         clearInterval(timerInterval);
