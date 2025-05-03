@@ -1,6 +1,17 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const startButton = document.getElementById('startButton');
+
+startButton.addEventListener('click', () => {
+  startScreen.style.display = 'none';
+  gameScreen.style.display = 'block';
+  gameLoop();
+  timerInterval = setInterval(updateTimer, 1000);
+});
+
 
 const crane = {
   x: 180,
@@ -141,7 +152,7 @@ function updateTimer() {
     }
 }
 //タイマーを1秒ごとに更新
-const timerInterval = setInterval(updateTimer, 1000);
+let timerInterval = setInterval(updateTimer, 1000);
 
 gameLoop(); // ゲームループ
 
