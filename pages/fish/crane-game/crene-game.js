@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+
 const crane = {
   x: 180,
   y: 50,
@@ -121,4 +122,37 @@ document.getElementById('catchButton').addEventListener('click', () => {
   }
 });
 
-gameLoop();
+const limitTime = 30; // 制限時間（秒）
+let remainingTime = limitTime;
+
+// タイマー表示要素とフォーム要素の取得
+const timerElement = document.getElementById('timer');
+const formElement = document.getElementById('restrictedForm');
+
+//タイマーの更新と処理
+function updateTimer() {
+    timerElement.textContent = `残り時間: ${remainingTime}秒`;
+    if (remainingTime <= 0) {
+        // タイマーが0になったら時間切れ
+        clearInterval(timerInterval);
+        alert("時間切れ！");
+    } else {
+        remainingTime--;
+    }
+}
+//タイマーを1秒ごとに更新
+const timerInterval = setInterval(updateTimer, 1000);
+
+gameLoop(); // ゲームループ
+
+//フォームの送信処理
+formElement.addEventListener('submit', (event) => {
+    if(remainingTime > 0) {
+       // 残り時間がある場合はフォームを送信
+       alert('フォームが送信されました！');  
+    }else {
+       // 残り時間がない場合は送信をキャンセル
+       event.preventDefault();
+       alert('時間切れのため、フォームは送信できません。');
+    }
+});
