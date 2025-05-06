@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>スペース連打パンチマシーン</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #fafafa;
+    }
+    #timer, #score {
+      font-size: 32px;
+      margin: 20px;
+    }
+    #result {
+      font-size: 24px;
+      margin-top: 30px;
+      color: green;
+    }
+    #punchImage {
+      width: 300px;
+      height: auto;
+      transition: transform 0.1s ease;
+    }
+    #startMessage {
+      font-size: 20px;
+      margin-top: 10px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <h1>スペース連打パンチマシーン</h1>
+  <div id="timer">残り時間: 10秒</div>
+  <div id="score">連打数: 0</div>
+  <img id="punchImage" src="パンチングマシーン画面デザイン.png" alt="パンチ画像">
+  <div id="result"></div>
+  <div id="startMessage">※ スペースキーで開始・連打！</div>
+
+  <script>
+    let count = 0;
+    let isRunning = false;
+    let timer;
+    let countdownInterval;
+    const totalTime = 10;
+
+    const scoreDiv = document.getElementById('score');
+    const timerDiv = document.getElementById('timer');
+    const resultDiv = document.getElementById('result');
+    const punchImg = document.getElementById('punchImage');
+
+    function startGame() {
+      count = 0;
+      isRunning = true;
+      let remaining = totalTime;
+      scoreDiv.textContent = "連打数: 0";
+      timerDiv.textContent = `残り時間: ${remaining}秒`;
+      resultDiv.textContent = "";
+
+      countdownInterval = setInterval(() => {
+        remaining--;
+        timerDiv.textContent = `残り時間: ${remaining}秒`;
+        if (remaining <= 0) clearInterval(countdownInterval);
+      }, 1000);
+
+      timer = setTimeout(() => {
+        isRunning = false;
+        clearInterval(countdownInterval);
+        timerDiv.textContent = "終了！";
+        showResult();
+      }, totalTime * 1000);
+    }
+
+    function handlePunch() {
+      if (!isRunning) {
+        startGame();
+        return;
+      }
+      count++;
+      scoreDiv.textContent = `連打数: ${count}`;
+      punchImg.style.transform = "scale(1.1)";
+      setTimeout(() => {
+        punchImg.style.transform = "scale(1)";
+      }, 80);
+    }
+
+    function showResult() {
+      let evaluation;
+      if (count <= 10) {
+        evaluation = "まだ肩慣らしレベル！";
+      } else if (count <= 30) {
+        evaluation = "そこそこパンチャー";
+      } else if (count <= 50) {
+        evaluation = "鉄拳マスター！";
+      } else {
+        evaluation = "人間やめました？";
+      }
+      resultDiv.textContent = `評価：${evaluation}`;
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        handlePunch();
+      }
+    });
+  </script>
+</body>
+</html>
