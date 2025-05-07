@@ -4,11 +4,14 @@ const ctx = canvas.getContext('2d');
 const startScreen = document.getElementById('startScreen');
 const gameScreen = document.getElementById('gameScreen');
 const startButton = document.getElementById('startButton');
+let timerInterval; // タイマーのインターバルID
+
 
 startButton.addEventListener('click', () => {
   startScreen.style.display = 'none';
   gameScreen.style.display = 'block';
   gameLoop();
+  remainingTime = limitTime; // ← 残り時間をリセット
   timerInterval = setInterval(updateTimer, 1000);
 });
 
@@ -139,6 +142,7 @@ let remainingTime = limitTime;
 // タイマー表示要素とフォーム要素の取得
 const timerElement = document.getElementById('timer');
 const formElement = document.getElementById('restrictedForm');
+const gameOverElement = document.getElementById('gameOver');
 
 //タイマーの更新と処理
 function updateTimer() {
@@ -155,15 +159,16 @@ function updateTimer() {
     if (remainingTime <= 0) {
         // タイマーが0になったら時間切れ
         clearInterval(timerInterval);
-        alert("時間切れ！");
+        gameOverElement.style.display = 'block'; // ゲームオーバー画面を表示
     } else {
         remainingTime--;
     }
 }
-//タイマーを1秒ごとに更新
-let timerInterval = setInterval(updateTimer, 1000);
 
 gameLoop(); // ゲームループ
+
+
+
 
 //フォームの送信処理
 formElement.addEventListener('submit', (event) => {
