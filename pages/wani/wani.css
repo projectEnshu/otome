@@ -1,11 +1,10 @@
 html, body {
-  height: 100%;
   margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #000;
+  overflow: hidden;
 }
-
-body {
-    background-image: url("images/background.jpg"); /* 背景画像のパス */
-    background-size: cover;                 /* 全体を覆う */
-    background-position: center;            /* 中央寄せ */
-    background-repeat: no-repeat;           /* 繰り返さない */
-  }
+canvas {
+  display: block;
+}
