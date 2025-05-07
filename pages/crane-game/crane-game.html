@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>クレーンゲーム</title>
+  <style>
+    canvas {
+      background: #f0f8ff;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #333;
+    }
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+    <div id="startScreen">
+        <h1>クレーンゲーム</h1>
+        <div id="gameOver" style="display: none;font-size: 32px; color: red; text-align: center; margin-top: 20px;">
+            <h1>ゲームオーバー</h1>
+          <h1>終了！</h1>
+          </div>    
+        <button id="startButton">スタート</button>
+    </div>
+
+
+
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+<span id="timer">00:30</span>
+<button id="catchButton">ここだ！</button>
+<style src="crane-game.css"></style>
+<script src="crene-game.js" defer></script>
+</body>
+</html>
