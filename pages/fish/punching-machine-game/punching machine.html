@@ -121,11 +121,15 @@
     }
 
     document.addEventListener("keydown", (e) => {
-      if (e.code === "Space" && !e.repeat) {
-        e.preventDefault();
-        handlePunch();
-      }
-    });
+  if (e.code === "Enter" && !isRunning) {
+    e.preventDefault();
+    startGame();
+  } else if (e.code === "Space" && isRunning && !e.repeat) {
+    e.preventDefault();
+    handlePunch();
+  }
+});
+
   </script>
 </body>
 </html>
