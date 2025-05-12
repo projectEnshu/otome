@@ -10,6 +10,23 @@
       margin-top: 50px;
       background-color: #fafafa;
     }
+
+    body.game {
+  background-image: url('game-background.jpg'); /* ゲーム中の背景 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background 0.5s ease;
+}
+
+body.result {
+  background-image: url('yakuza_kowai.png'); /* リザルト画面の背景 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background 0.5s ease;
+}
+
     #gameContainer {
   position: relative;
   display: inline-block;
@@ -48,9 +65,14 @@
       margin-top: 10px;
       color: gray;
     }
+
+    #resultScreen {
+  display: none;
+}
+
   </style>
 </head>
-<body>
+<body class="game">
   <h1>スペース連打パンチマシーン</h1>
 
   <!-- ゲーム本体 -->
@@ -136,6 +158,10 @@
       document.getElementById('resultScreen').style.display = 'block';
       document.getElementById('finalScore').textContent = `連打数: ${count}`;
       document.getElementById('evaluation').textContent = `評価：${evaluation}`;
+
+      document.body.classList.remove("game");
+      document.body.classList.add("result");
+
     
     }
 
@@ -150,6 +176,10 @@
       isRunning = false;
       scoreDiv.textContent = "連打数: 0";
       timerDiv.textContent = "残り時間: 10秒";
+
+      document.body.classList.remove("result");
+      document.body.classList.add("game");
+
     }
 
     document.addEventListener("keydown", (e) => {
