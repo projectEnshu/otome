@@ -16,20 +16,34 @@
       padding: 10px 20px;
       font-size: 18px;
     }
+    #gameOver {
+      display: none;
+      font-size: 32px;
+      color: red;
+      text-align: center;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-    <div id="startScreen">
-        <h1>クレーンゲーム</h1>
-        <button id="startButton">スタート</button>
+  <!-- スタート画面 -->
+  <div id="startScreen">
+    <h1>クレーンゲーム</h1>
+    <button id="startButton">スタート</button>
+    <a id="back_button" href="../selection/selection.html">ホームに戻る</a>
+  </div>
+
+  <!-- ゲーム画面（最初は非表示） -->
+  <div id="gameScreen" style="display:none;">
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <span id="timer">00:30</span>
+    <button id="catchButton">ここだ！</button>
+    <div id="prizeCount">取った景品数: 0</div>
+    <div id="gameOver" id = "gameOver">
+      <h1>終了！</h1>
     </div>
+  </div>
 
-
-<canvas id="gameCanvas" width="400" height="400"></canvas>
-<span id="timer">00:30</span>
-<button id="catchButton">ここだ！</button>
-
-<script src="crene-game.js"></script>
-
+  <script src="crene-game.js"></script>
 </body>
 </html>
