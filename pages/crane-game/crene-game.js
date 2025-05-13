@@ -19,6 +19,11 @@ let caughtPrizeCount = 0; // 取った景品数変数
 startButton.addEventListener('click', () => {
   startScreen.style.display = 'none'; // スタート画面を非表示
   gameScreen.style.display = 'block'; // ゲーム画面を表示
+  
+  const backButton = document.getElementById("back_button");
+  prizeCountElement.textContent = `取った景品数: 0`;
+  if (backButton) backButton.style.display = "none"; // ← 非表示にする
+
   remainingTime = limitTime; // 残り時間をリセット
   isGameOver = false; // ゲームオーバーフラグをリセット
   prizeCountElement.textContent = 0; // 景品カウントをリセット
@@ -70,7 +75,7 @@ function drawPrize() {
 }
 
 function update() {
-  if(isGameOver){
+  if(gameOver){
     return; // ゲームオーバーの場合は更新しない
   }
   if (!crane.dropping && !crane.lifting) {
@@ -163,7 +168,11 @@ function updateTimer() {
    if (remainingTime <= 0) {
      clearInterval(timerInterval);
      gameOverElement.style.display = 'block'; // ゲームオーバー画面を表示
-     isGameOver = true; // ゲームオーバー状態にする
+     gameOver = true; // ゲームオーバー状態にする
+     
+     const backButton = document.getElementById("back_button");
+     if (backButton) backButton.style.display = "block"; // ← 表示する
+
    } else {
      remainingTime--;
    }
