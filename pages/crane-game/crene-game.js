@@ -7,17 +7,21 @@ const startButton = document.getElementById('startButton');
 const timerElement = document.getElementById('timer');
 const gameOverElement = document.getElementById('gameOver');
 const catchButton = document.getElementById('catchButton');
+const prizeCountElement = document.getElementById('prizeCount'); // 景品カウント表示
 
 let timerInterval; // タイマーのインターバルID
 const limitTime = 30; // 制限時間（秒）
 let remainingTime = limitTime;
 let gameOver = false; // ゲームオーバーフラグ
+let prizeCount = 0; // 景品カウント
+let caughtPrizeCount = 0; // 取った景品数変数
 
 startButton.addEventListener('click', () => {
   startScreen.style.display = 'none'; // スタート画面を非表示
   gameScreen.style.display = 'block'; // ゲーム画面を表示
   remainingTime = limitTime; // 残り時間をリセット
   isGameOver = false; // ゲームオーバーフラグをリセット
+  prizeCountElement.textContent = 0; // 景品カウントをリセット
   timerInterval = setInterval(updateTimer, 1000); // タイマーを開始
   gameLoop(); // ゲームを開始
 });
@@ -101,6 +105,8 @@ function update() {
       }
     } else {
       if (prize.caught) {
+        caughtPrizeCount++;
+        prizeCountElement.textContent = `取った景品数: ${caughtPrizeCount}`; // 景品カウントを更新
         alert("ゲット成功！🎉");
         resetGame();
       } else {
