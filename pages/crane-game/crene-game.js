@@ -4,17 +4,23 @@ const ctx = canvas.getContext('2d');
 const startScreen = document.getElementById('startScreen');
 const gameScreen = document.getElementById('gameScreen');
 const startButton = document.getElementById('startButton');
-let timerInterval; // タイマーのインターバルID
+const timerElement = document.getElementById('timer');
+const gameOverElement = document.getElementById('gameOver');
+const catchButton = document.getElementById('catchButton');
 
+let timerInterval; // タイマーのインターバルID
+const limitTime = 30; // 制限時間（秒）
+let remainingTime = limitTime;
+let gameOver = false; // ゲームオーバーフラグ
 
 startButton.addEventListener('click', () => {
-  startScreen.style.display = 'none';
-  gameScreen.style.display = 'block';
-  gameLoop();
-  remainingTime = limitTime; // ← 残り時間をリセット
-  timerInterval = setInterval(updateTimer, 1000);
+  startScreen.style.display = 'none'; // スタート画面を非表示
+  gameScreen.style.display = 'block'; // ゲーム画面を表示
+  remainingTime = limitTime; // 残り時間をリセット
+  isGameOver = false; // ゲームオーバーフラグをリセット
+  timerInterval = setInterval(updateTimer, 1000); // タイマーを開始
+  gameLoop(); // ゲームを開始
 });
-
 
 const crane = {
   x: 180,
@@ -60,6 +66,9 @@ function drawPrize() {
 }
 
 function update() {
+  if(isGameOver){
+    return; // ゲームオーバーの場合は更新しない
+  }
   if (!crane.dropping && !crane.lifting) {
     if (keys['ArrowLeft'] && crane.x > 0) {
       crane.x -= crane.speed;
@@ -71,9 +80,7 @@ function update() {
     if (crane.y < crane.dropY + 200) {
       crane.y += 4;
     } else {
-      // クレーンが下まで到達したらアーム閉じる
-      crane.armOpen = false;
-      // 少し待ってから判定＆引き上げ開始
+      crane.armOpen = false; // アームを閉じる
       setTimeout(() => {
         if (
           crane.x + crane.width/2 > prize.x &&
@@ -130,54 +137,28 @@ document.addEventListener('keyup', (e) => {
 });
 
 // ボタン押したら降下開始
-document.getElementById('catchButton').addEventListener('click', () => {
+catchButton.addEventListener('click', () => {
   if (!crane.dropping && !crane.lifting) {
     crane.dropping = true;
   }
 });
 
-const limitTime = 30; // 制限時間（秒）
-let remainingTime = limitTime;
-
-// タイマー表示要素とフォーム要素の取得
-const timerElement = document.getElementById('timer');
-const formElement = document.getElementById('restrictedForm');
-const gameOverElement = document.getElementById('gameOver');
-
-//タイマーの更新と処理
+// タイマーの更新と処理
 function updateTimer() {
    const minutes = Math.floor(remainingTime / 60);
-    const seconds = remainingTime % 60;
+   const seconds = remainingTime % 60;
 
-    //分と秒を2桁表示
-    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-    const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+   // 分と秒を2桁表示
+   const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+   const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
 
-    timerElement.textContent = `${formattedMinutes}:${formattedSeconds}`;
-    
+   timerElement.textContent = `${formattedMinutes}:${formattedSeconds}`;
 
-    if (remainingTime <= 0) {
-        // タイマーが0になったら時間切れ
-        clearInterval(timerInterval);
-        gameOverElement.style.display = 'block'; // ゲームオーバー画面を表示
-    } else {
-        remainingTime--;
-    }
+   if (remainingTime <= 0) {
+     clearInterval(timerInterval);
+     gameOverElement.style.display = 'block'; // ゲームオーバー画面を表示
+     isGameOver = true; // ゲームオーバー状態にする
+   } else {
+     remainingTime--;
+   }
 }
-
-gameLoop(); // ゲームループ
-
-
-
-
-//フォームの送信処理
-formElement.addEventListener('submit', (event) => {
-    if(remainingTime > 0) {
-       // 残り時間がある場合はフォームを送信
-       alert('フォームが送信されました！');  
-    }else {
-       // 残り時間がない場合は送信をキャンセル
-       event.preventDefault();
-       alert('時間切れのため、フォームは送信できません。');
-    }
-});
