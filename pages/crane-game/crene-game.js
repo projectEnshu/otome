@@ -7,28 +7,27 @@ const startButton = document.getElementById('startButton');
 const timerElement = document.getElementById('timer');
 const gameOverElement = document.getElementById('gameOver');
 const catchButton = document.getElementById('catchButton');
-const prizeCountElement = document.getElementById('prizeCount'); // 景品カウント表示
+const prizeCountElement = document.getElementById('prizeCount');
 
-let timerInterval; // タイマーのインターバルID
-const limitTime = 30; // 制限時間（秒）
+let timerInterval;
+const limitTime = 30;
 let remainingTime = limitTime;
-let gameOver = false; // ゲームオーバーフラグ
-let prizeCount = 0; // 景品カウント
-let caughtPrizeCount = 0; // 取った景品数変数
+let gameOver = false;
+let caughtPrizeCount = 0;
 
 startButton.addEventListener('click', () => {
-  startScreen.style.display = 'none'; // スタート画面を非表示
-  gameScreen.style.display = 'block'; // ゲーム画面を表示
-  
+  startScreen.style.display = 'none';
+  gameScreen.style.display = 'block';
   const backButton = document.getElementById("back_button");
-  prizeCountElement.textContent = `取った景品数: 0`;
-  if (backButton) backButton.style.display = "none"; // ← 非表示にする
 
-  remainingTime = limitTime; // 残り時間をリセット
-  isGameOver = false; // ゲームオーバーフラグをリセット
-  prizeCountElement.textContent = 0; // 景品カウントをリセット
-  timerInterval = setInterval(updateTimer, 1000); // タイマーを開始
-  gameLoop(); // ゲームを開始
+  remainingTime = limitTime;
+  gameOver = false;
+  caughtPrizeCount = 0;
+  prizeCountElement.textContent = `取った景品数: 0`;
+  gameOverElement.style.display = 'none';
+
+  timerInterval = setInterval(updateTimer, 1000);
+  gameLoop();
 });
 
 const crane = {
@@ -40,7 +39,7 @@ const crane = {
   dropping: false,
   lifting: false,
   dropY: 50,
-  armOpen: true, // アーム開閉フラグ
+  armOpen: true,
 };
 
 const prize = {
@@ -48,7 +47,7 @@ const prize = {
   y: 350,
   width: 30,
   height: 30,
-  caught: false, // 景品を掴んでいるか
+  caught: false,
 };
 
 let keys = {};
@@ -56,16 +55,15 @@ let keys = {};
 function drawCrane() {
   ctx.fillStyle = 'gray';
   ctx.fillRect(crane.x, crane.y, crane.width, crane.height);
-  ctx.fillRect(crane.x + crane.width/2 - 2, 0, 4, crane.y); // rope
+  ctx.fillRect(crane.x + crane.width/2 - 2, 0, 4, crane.y);
 
-  // アーム（開閉式）
   ctx.fillStyle = 'black';
   if (crane.armOpen) {
-    ctx.fillRect(crane.x - 10, crane.y + crane.height, 10, 10); // 左アーム（開き）
-    ctx.fillRect(crane.x + crane.width, crane.y + crane.height, 10, 10); // 右アーム（開き）
+    ctx.fillRect(crane.x - 10, crane.y + crane.height, 10, 10);
+    ctx.fillRect(crane.x + crane.width, crane.y + crane.height, 10, 10);
   } else {
-    ctx.fillRect(crane.x + crane.width/2 - 10, crane.y + crane.height, 8, 10); // 左アーム（閉じ）
-    ctx.fillRect(crane.x + crane.width/2 + 2, crane.y + crane.height, 8, 10); // 右アーム（閉じ）
+    ctx.fillRect(crane.x + crane.width/2 - 10, crane.y + crane.height, 8, 10);
+    ctx.fillRect(crane.x + crane.width/2 + 2, crane.y + crane.height, 8, 10);
   }
 }
 
@@ -75,25 +73,20 @@ function drawPrize() {
 }
 
 function update() {
-  if(gameOver){
-    return; // ゲームオーバーの場合は更新しない
-  }
+  if (gameOver) return;
+
   if (!crane.dropping && !crane.lifting) {
-    if (keys['ArrowLeft'] && crane.x > 0) {
-      crane.x -= crane.speed;
-    }
-    if (keys['ArrowRight'] && crane.x + crane.width < canvas.width) {
-      crane.x += crane.speed;
-    }
+    if (keys['ArrowLeft'] && crane.x > 0) crane.x -= crane.speed;
+    if (keys['ArrowRight'] && crane.x + crane.width < canvas.width) crane.x += crane.speed;
   } else if (crane.dropping) {
     if (crane.y < crane.dropY + 200) {
       crane.y += 4;
     } else {
-      crane.armOpen = false; // アームを閉じる
+      crane.armOpen = false;
       setTimeout(() => {
         if (
-          crane.x + crane.width/2 > prize.x &&
-          crane.x + crane.width/2 < prize.x + prize.width
+          crane.x + crane.width / 2 > prize.x &&
+          crane.x + crane.width / 2 < prize.x + prize.width
         ) {
           prize.caught = true;
         }
@@ -106,12 +99,12 @@ function update() {
       crane.y -= 4;
       if (prize.caught) {
         prize.y = crane.y + crane.height + 10;
-        prize.x = crane.x + crane.width/2 - prize.width/2;
+        prize.x = crane.x + crane.width / 2 - prize.width / 2;
       }
     } else {
       if (prize.caught) {
         caughtPrizeCount++;
-        prizeCountElement.textContent = `取った景品数: ${caughtPrizeCount}`; // 景品カウントを更新
+        prizeCountElement.textContent = `取った景品数: ${caughtPrizeCount}`;
         alert("ゲット成功！🎉");
         resetGame();
       } else {
@@ -135,45 +128,42 @@ function gameLoop() {
   drawCrane();
   drawPrize();
   update();
-  requestAnimationFrame(gameLoop);
+  if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
-// キー操作
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
+
+  //Enterキーでアームを降ろす
+  if(e.key === 'Enter'){
+    if (!crane.dropping && !crane.lifting && !gameOver) {
+      crane.dropping = true;
+    }
+  }
 });
 
 document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
-// ボタン押したら降下開始
 catchButton.addEventListener('click', () => {
-  if (!crane.dropping && !crane.lifting) {
+  if (!crane.dropping && !crane.lifting && !gameOver) {
     crane.dropping = true;
   }
 });
 
-// タイマーの更新と処理
 function updateTimer() {
-   const minutes = Math.floor(remainingTime / 60);
-   const seconds = remainingTime % 60;
+  const minutes = Math.floor(remainingTime / 60);
+  const seconds = remainingTime % 60;
+  timerElement.textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 
-   // 分と秒を2桁表示
-   const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-   const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-
-   timerElement.textContent = `${formattedMinutes}:${formattedSeconds}`;
-
-   if (remainingTime <= 0) {
-     clearInterval(timerInterval);
-     gameOverElement.style.display = 'block'; // ゲームオーバー画面を表示
-     gameOver = true; // ゲームオーバー状態にする
-     
-     const backButton = document.getElementById("back_button");
-     if (backButton) backButton.style.display = "block"; // ← 表示する
-
-   } else {
-     remainingTime--;
-   }
+  if (remainingTime <= 0) {
+    clearInterval(timerInterval);
+    gameOver = true;
+    gameOverElement.style.display = 'block';
+    /*const backButton = document.getElementById("back_button");
+    if (backButton) backButton.style.display = "block";*/
+  } else {
+    remainingTime--;
+  }
 }
