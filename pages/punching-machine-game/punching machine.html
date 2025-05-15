@@ -76,7 +76,7 @@
   </style>
 </head>
 <body class="game">
-  <h1>スペース連打パンチマシーン</h1>
+  
 
   <!-- ゲーム本体 -->
   <div id="gameContainer"></div>
@@ -155,17 +155,21 @@ function handlePunch() {
         evaluation = "人間やめました？";
       }
 
-      // ゲーム表示を消す
-      document.getElementById('gameContainer').style.display = 'none';
-      document.getElementById('startMessage').style.display = 'none';
+       // スコアとタイマーを非表示にする
+       scoreDiv.style.display = "none";
+       timerDiv.style.display = "none";
+       
+       // ゲーム表示を消す
+       document.getElementById('gameContainer').style.display = 'none';
+       document.getElementById('startMessage').style.display = 'none';
 
-      // リザルト表示
-      document.getElementById('resultScreen').style.display = 'block';
-      document.getElementById('finalScore').textContent = `連打数: ${count}`;
-      document.getElementById('evaluation').textContent = `評価：${evaluation}`;
+       // リザルト表示
+       document.getElementById('resultScreen').style.display = 'block';
+       document.getElementById('finalScore').textContent = `連打数: ${count}`;
+       document.getElementById('evaluation').textContent = `評価：${evaluation}`;
 
-      // 背景を切り替える
-      document.body.className = "result";
+       // 背景を切り替える
+       document.body.className = "result";
     }
 
     function restartGame() {
