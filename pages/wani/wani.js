@@ -218,6 +218,18 @@ function create() {
     .setOrigin(0.5)
     .setDisplaySize(460 * 1, 234 * 1);
 
+  // ホームへ戻るボタンを画面下部に配置
+  const homeText = this.add.text(this.scale.width / 2, this.scale.height - 50, 'ホームへ戻る', {
+    fontSize: '24px', fill: '#fff'
+  })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true });
+
+  // クリックで別ページへ遷移
+  homeText.on('pointerdown', () => {
+    window.location.href = '../selection/selection.html';  // 遷移先URLを適宜変更
+  });
+
   // 画面クリックでズームインアニメーション＆スタートボタンを有効化
   screenBg.on('pointerdown', () => {
     if (zoomed) return;        // 既にズーム済みなら無視
