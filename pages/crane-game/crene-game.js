@@ -167,3 +167,15 @@ function updateTimer() {
     remainingTime--;
   }
 }
+  // 説明ボタンとモーダル制御
+const howToPlayButton = document.getElementById('howToPlayButton');
+const howToPlayModal = document.getElementById('howToPlayModal');
+const closeHowToPlay = document.getElementById('closeHowToPlay');
+
+howToPlayButton.addEventListener('click', () => {
+  howToPlayModal.style.display = 'block';
+});
+
+closeHowToPlay.addEventListener('click', () => {
+  howToPlayModal.style.display = 'none';
+});

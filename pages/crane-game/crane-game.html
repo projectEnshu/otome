@@ -25,12 +25,15 @@
     }
   </style>
 </head>
+</div>
 <body>
   <!-- スタート画面 -->
   <div id="startScreen">
     <h1>クレーンゲーム</h1>
     <button id="startButton">スタート</button>
+     <button id = "howToPlayButton">説明を見る</button>
   </div>
+
 
   <a id="back_button" href="../selection/selection.html">ホームに戻る</a>
 
@@ -44,6 +47,18 @@
       <h1>終了！</h1>
     </div>
   </div>
+
+  <!-- 説明画面（モーダル） -->
+<div id="howToPlayModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6);">
+  <div style="background:white; width:80%; max-width:500px; margin:100px auto; padding:20px; border-radius:10px; text-align:center;">
+    <h2>遊び方</h2>
+    <p>← → キーでクレーンを左右に動かします。</p>
+    <p>「ここだ！」ボタン または Enterキーでアームを下ろします。</p>
+    <p>景品の真上でキャッチできたら成功です！</p>
+    <button id="closeHowToPlay">閉じる</button>
+  </div>
+
+
 
   <script src="crene-game.js"></script>
 </body>
