@@ -219,16 +219,16 @@ function create() {
     .setDisplaySize(460 * 1, 234 * 1);
 
   // ホームへ戻るボタンを画面下部に配置
-  const homeText = this.add.text(this.scale.width / 2, this.scale.height - 50, 'ホームへ戻る', {
-    fontSize: '24px', fill: '#fff'
-  })
-    .setOrigin(0.5)
-    .setInteractive({ useHandCursor: true });
+  // const homeText = this.add.text(this.scale.width / 2, this.scale.height - 50, 'ホームへ戻る', {
+  //   fontSize: '24px', fill: '#fff'
+  // })
+  //   .setOrigin(0.5)
+  //   .setInteractive({ useHandCursor: true });
 
   // クリックで別ページへ遷移
-  homeText.on('pointerdown', () => {
-    window.location.href = '../selection/selection.html';  // 遷移先URLを適宜変更
-  });
+  // homeText.on('pointerdown', () => {
+  //   window.location.href = '../selection/selection.html';  // 遷移先URLを適宜変更
+  // });
 
   // 画面クリックでズームインアニメーション＆スタートボタンを有効化
   screenBg.on('pointerdown', () => {
@@ -267,7 +267,7 @@ function create() {
         countdownText.destroy();
         scoreText.setVisible(true);    // スコア表示
 
-        let remainingTime = 10;       // 制限時間
+        let remainingTime = 30;       // 制限時間
         const timerText = this.add.text(20,20, `残り: ${remainingTime} 秒`, { fontSize:'28px', fill:'#ff0' });
 
         // タイマーイベント（1秒ごとにカウントダウン）
