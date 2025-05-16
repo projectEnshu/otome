@@ -112,10 +112,17 @@
     <h2>結果発表！</h2>
     <div id="finalScore"></div>
     <div id="evaluation"></div>
-    <button onclick="restartGame()">もう一度挑戦！</button>
+    <button onclick="goHome()">ホームへ戻る</button>
+    
+    
   </div>
 
+  
+
   <script>
+    function goHome() {
+    window.location.href = "../selection/selection.html";
+    }
     let count = 0;
     let isRunning = false;
     let timer;
@@ -211,7 +218,9 @@
         e.preventDefault();
         handlePunch();
       }
+
     });
   </script>
+  <a id="back_button" href="../selection/selection.html">ホームに戻る</a>
 </body>
 </html>
