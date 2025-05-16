@@ -12,15 +12,7 @@
     }
 
     body.game {
-      background-image: url('パンチゲーム.png'); /* ゲーム中の背景 */
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      transition: background 0.5s ease;
-    }
-
-    body.result {
-      background-image: url('result-background.jpg'); /* リザルト画面の背景 */
+      background-image: url('パンチゲーム.png');
       background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
@@ -28,21 +20,13 @@
     }
 
     #gameContainer {
-  position: relative;
-  display: inline-block;
-  width: 1200px;
-  max-width: 100%;
-  height: 675px; /* 適切な高さに調整 */
-  background-size: cover;
-  background-position: center;
-}
-
-
-
-    #punchImage {
-      width: 100%;
-      height: auto;
-      display: block;
+      position: relative;
+      display: inline-block;
+      width: 1200px;
+      max-width: 100%;
+      height: 675px;
+      background-size: cover;
+      background-position: center;
     }
 
     #score, #timer {
@@ -72,11 +56,44 @@
 
     #resultScreen {
       display: none;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
+
+    .resultBackground {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      z-index: -1;
+    }
+
+    #resultScreen h2,
+    #finalScore,
+    #evaluation,
+    #resultScreen button {
+      position: relative;
+      z-index: 10;
+      color: black;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    #resultScreen h2 {
+      font-size: 36px;
+      margin-top: 60px;
+    }
+
   </style>
 </head>
 <body class="game">
-  
 
   <!-- ゲーム本体 -->
   <div id="gameContainer"></div>
@@ -87,6 +104,7 @@
 
   <!-- 結果画面 -->
   <div id="resultScreen">
+    <img src="枠組み.jpg" class="resultBackground" alt="リザルト背景">
     <h2>結果発表！</h2>
     <div id="finalScore"></div>
     <div id="evaluation"></div>
@@ -103,7 +121,6 @@
     const scoreDiv = document.getElementById('score');
     const timerDiv = document.getElementById('timer');
     const resultDiv = document.getElementById('result');
-    const punchImg = document.getElementById('punchImage');
 
     function startGame() {
       count = 0;
@@ -129,19 +146,18 @@
 
     const gameContainer = document.getElementById('gameContainer');
 
-function handlePunch() {
-  if (!isRunning) {
-    startGame();
-    return;
-  }
-  count++;
-  scoreDiv.textContent = `連打数: ${count}`;
-  gameContainer.style.transform = "scale(1.05)";
-  setTimeout(() => {
-    gameContainer.style.transform = "scale(1)";
-  }, 80);
-}
-
+    function handlePunch() {
+      if (!isRunning) {
+        startGame();
+        return;
+      }
+      count++;
+      scoreDiv.textContent = `連打数: ${count}`;
+      gameContainer.style.transform = "scale(1.05)";
+      setTimeout(() => {
+        gameContainer.style.transform = "scale(1)";
+      }, 80);
+    }
 
     function showResult() {
       let evaluation;
@@ -155,36 +171,31 @@ function handlePunch() {
         evaluation = "人間やめました？";
       }
 
-       // スコアとタイマーを非表示にする
-       scoreDiv.style.display = "none";
-       timerDiv.style.display = "none";
-       
-       // ゲーム表示を消す
-       document.getElementById('gameContainer').style.display = 'none';
-       document.getElementById('startMessage').style.display = 'none';
+      scoreDiv.style.display = "none";
+      timerDiv.style.display = "none";
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('startMessage').style.display = 'none';
 
-       // リザルト表示
-       document.getElementById('resultScreen').style.display = 'block';
-       document.getElementById('finalScore').textContent = `連打数: ${count}`;
-       document.getElementById('evaluation').textContent = `評価：${evaluation}`;
+      document.getElementById('resultScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = `連打数: ${count}`;
+      document.getElementById('evaluation').textContent = `評価：${evaluation}`;
 
-       // 背景を切り替える
-       document.body.className = "result";
+      // 背景切り替えクラスは使わない（画像で直接表示）
+      document.body.className = "";
     }
 
     function restartGame() {
-      // 画面切り替え
       document.getElementById('gameContainer').style.display = 'inline-block';
       document.getElementById('startMessage').style.display = 'block';
       document.getElementById('resultScreen').style.display = 'none';
 
-      // スコア表示リセット
       count = 0;
       isRunning = false;
       scoreDiv.textContent = "連打数: 0";
       timerDiv.textContent = "残り時間: 10秒";
+      scoreDiv.style.display = "block";
+      timerDiv.style.display = "block";
 
-      // 背景を元に戻す
       document.body.className = "game";
     }
 
