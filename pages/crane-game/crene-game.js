@@ -1,3 +1,4 @@
+// crane-game.js
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -15,199 +16,197 @@ let remainingTime = limitTime;
 let gameOver = false;
 let caughtPrizeCount = 0;
 
-startButton.addEventListener('click', () => {
-  startScreen.style.display = 'none';
-  gameScreen.style.display = 'block';
-  const backButton = document.getElementById("back_button");
-
-  remainingTime = limitTime;
-  gameOver = false;
-  caughtPrizeCount = 0;
-  prizeCountElement.textContent = `取った景品数: 0`;
-  gameOverElement.style.display = 'none';
-
-  timerInterval = setInterval(updateTimer, 1000);
-  gameLoop();
-});
-
 const crane = {
-  x: 160,
+
+  x: 180,
   y: 50,
-  width: 80,          // 幅を広く
-  height: 30,         // 高さを大きく
+  width: 60,
+  height: 40,
   speed: 4,
   dropping: false,
   lifting: false,
   dropY: 50,
   armOpen: true,
-  armAngle: 0,        // アニメーション用の角度
-  maxArmAngle: Math.PI / 4,  // 最大角度（開き具合）
+  armAngle: 0,
+  maxArmAngle: Math.PI / 6,
+  currentPrize: null
 };
 
-const prize = {
-  x: Math.random() * 300 + 50,
-  y: 350,
-  width: 30,
-  height: 30,
-  caught: false,
-};
+let prizes = [];
+const PRIZE_COUNT = 4;
 
-let keys = {};
+const prizeImages = [
+  new Image(),
+  new Image(),
+  new Image(),
+  new Image()
+];
 
-function drawCrane() {
-  ctx.fillStyle = 'gray';
-  ctx.fillRect(crane.x, crane.y, crane.width, crane.height);
-  ctx.fillRect(crane.x + crane.width/2 - 2, 0, 4, crane.y);
+prizeImages[0].src = './images/image1.PNG';
+prizeImages[1].src = './images/image2.PNG';
+prizeImages[2].src = './images/image3.PNG';
+prizeImages[3].src = './images/image4.PNG';
 
-  ctx.fillStyle = 'black';
-  if (crane.armOpen) {
-    ctx.fillRect(crane.x - 10, crane.y + crane.height, 10, 10);
-    ctx.fillRect(crane.x + crane.width, crane.y + crane.height, 10, 10);
-  } else {
-    ctx.fillRect(crane.x + crane.width/2 - 10, crane.y + crane.height, 8, 10);
-    ctx.fillRect(crane.x + crane.width/2 + 2, crane.y + crane.height, 8, 10);
+
+/*function createPrizes() {
+  prizes = [];
+  for (let i = 0; i < PRIZE_COUNT; i++) {
+    prizes.push({
+      x: Math.random() * (canvas.width - 50),
+      y:  canvas.height - 10 - 80,  // 80は prize.height,
+      width: 100,
+      height: 100,
+      image: prizeImages[Math.floor(Math.random() * prizeImages.length)],
+      caught: false
+    });
+  }
+}*/
+function createPrizes() {
+  prizes = [];
+
+  const prizeWidth = 80;
+  const prizeHeight = 80;
+  const count = 4;
+
+  const totalWidth = prizeWidth * count;
+  const spacing = (canvas.width - totalWidth) / (count + 1); // 両端含めて余白分配
+
+  for (let i = 0; i < count; i++) {
+    const x = spacing + i * (prizeWidth + spacing);
+    const y = canvas.height - 10 - prizeHeight;
+
+    prizes.push({
+      x,
+      y,
+      width: prizeWidth,
+      height: prizeHeight,
+      image: prizeImages[i % prizeImages.length], // 画像を順番に割り当て
+    });
   }
 }
-function drawCrane() {
-  // ワイヤー
-  ctx.strokeStyle = '#666';
-  ctx.lineWidth = 4;
+
+
+ function drawCrane() {
+  ctx.fillStyle = '#555';
+  ctx.fillRect(crane.x, crane.y, crane.width, crane.height);
+
+  // ロープ
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(crane.x + crane.width / 2, 0);
   ctx.lineTo(crane.x + crane.width / 2, crane.y);
   ctx.stroke();
 
-  // 本体
-  const grad = ctx.createLinearGradient(crane.x, crane.y, crane.x + crane.width, crane.y + crane.height);
-  grad.addColorStop(0, '#aaa');
-  grad.addColorStop(1, '#ddd');
-  ctx.fillStyle = grad;
-  ctx.fillRect(crane.x, crane.y, crane.width, crane.height);
+  const armBaseY = crane.y + crane.height;
+  const armBaseWidth = 30; // アームのベース（水平バー）
+  const armBaseHeight = 20;
+  const clawLength = 30;
 
-  // 爪
-  const baseX = crane.x + crane.width / 2;
-  const baseY = crane.y + crane.height;
-  const armLength = 40;
-  const armWidth = 10;
-
+  // アームベース（水平）
+  ctx.fillStyle = '#888';
+  ctx.fillRect(
+    crane.x + crane.width / 2 - armBaseWidth / 2,
+    armBaseY,
+    armBaseWidth,
+    armBaseHeight
+  );
+  
+  // 爪の描画
   ctx.fillStyle = '#333';
+  if (crane.armOpen) {
+    // 左爪（開き）
+    ctx.beginPath();
+    ctx.moveTo(crane.x + crane.width / 2 - 12, armBaseY + armBaseHeight);
+    ctx.lineTo(crane.x + crane.width / 2 - 28, armBaseY + armBaseHeight + clawLength);
+    ctx.lineTo(crane.x + crane.width / 2 - 22, armBaseY + armBaseHeight + clawLength);
+    ctx.lineTo(crane.x + crane.width / 2 - 6, armBaseY + armBaseHeight);
+    ctx.fill();
 
-  // 左の爪（スライドして閉じる動き）
-  const leftOffset = crane.armOpen ? -20 : -5;
-  ctx.beginPath();
-  ctx.moveTo(baseX + leftOffset, baseY);
-  ctx.lineTo(baseX + leftOffset - armWidth, baseY + armLength);
-  ctx.lineTo(baseX + leftOffset, baseY + armLength);
-  ctx.closePath();
-  ctx.fill();
-
-  // 右の爪（スライドして閉じる動き）
-  const rightOffset = crane.armOpen ? 20 : 5;
-  ctx.beginPath();
-  ctx.moveTo(baseX + rightOffset, baseY);
-  ctx.lineTo(baseX + rightOffset + armWidth, baseY + armLength);
-  ctx.lineTo(baseX + rightOffset, baseY + armLength);
-  ctx.closePath();
-  ctx.fill();
-}
-
-
-function drawPrize() {
-  ctx.fillStyle = 'gold';
-  ctx.fillRect(prize.x, prize.y, prize.width, prize.height);
-}
-
-/*function update() {
-  if (gameOver) return;
-
-  if (!crane.dropping && !crane.lifting) {
-    if (keys['ArrowLeft'] && crane.x > 0) crane.x -= crane.speed;
-    if (keys['ArrowRight'] && crane.x + crane.width < canvas.width) crane.x += crane.speed;
-  } else if (crane.dropping) {
-  if (crane.y < prize.y - crane.height) {
-    crane.y += 4;
+    // 右爪（開き）
+    ctx.beginPath();
+    ctx.moveTo(crane.x + crane.width / 2 + 12, armBaseY + armBaseHeight);
+    ctx.lineTo(crane.x + crane.width / 2 + 28, armBaseY + armBaseHeight + clawLength);
+    ctx.lineTo(crane.x + crane.width / 2 + 22, armBaseY + armBaseHeight + clawLength);
+    ctx.lineTo(crane.x + crane.width / 2 + 6, armBaseY + armBaseHeight);
+    ctx.fill();
   } else {
-    crane.armOpen = false;
-    setTimeout(() => {
-      if (
-        crane.x + crane.width / 2 > prize.x &&
-        crane.x + crane.width / 2 < prize.x + prize.width
-      ) {
-        prize.caught = true;
-      }
-      crane.dropping = false;
-      crane.lifting = true;
-    }, 500);
+    // 閉じた状態（左右爪を重ねる）
+    ctx.beginPath();
+    ctx.moveTo(crane.x + crane.width / 2 - 6, armBaseY + armBaseHeight);
+    ctx.lineTo(crane.x + crane.width / 2 - 6, armBaseY + armBaseHeight + clawLength);
+    ctx.lineTo(crane.x + crane.width / 2, armBaseY + armBaseHeight + clawLength + 6);
+    ctx.lineTo(crane.x + crane.width / 2 + 6, armBaseY + armBaseHeight + clawLength);
+    ctx.lineTo(crane.x + crane.width / 2 + 6, armBaseY + armBaseHeight);
+    ctx.fill();
   }
-  } else if (crane.lifting) {
-    if (crane.y > 50) {
-      crane.y -= 4;
-      if (prize.caught) {
-        prize.y = crane.y + crane.height + 10;
-        prize.x = crane.x + crane.width / 2 - prize.width / 2;
-      }
-    } else {
-      if (prize.caught) {
-        caughtPrizeCount++;
-        prizeCountElement.textContent = `取った景品数: ${caughtPrizeCount}`;
-        alert("ゲット成功！🎉");
-        resetGame();
-      } else {
-        alert("失敗！もう一回💦");
-      }
-      crane.lifting = false;
-      crane.armOpen = true;
-      crane.y = 50;
+}
+
+
+
+function drawPrizes() {
+  prizes.forEach(prize => {
+      if (prize.image.complete) {
+      ctx.drawImage(prize.image, prize.x, prize.y, prize.width, prize.height);
     }
-  }
-}*/
+    });
+}
+
 function update() {
   if (gameOver) return;
 
-  // 開閉アニメーション（徐々に角度が変わる）
+  // アームアニメーション（省略可）
   if (crane.armOpen && crane.armAngle > 0) {
     crane.armAngle -= 0.05;
   } else if (!crane.armOpen && crane.armAngle < crane.maxArmAngle) {
     crane.armAngle += 0.05;
   }
 
-  // 横移動
   if (!crane.dropping && !crane.lifting) {
     if (keys['ArrowLeft'] && crane.x > 0) crane.x -= crane.speed;
     if (keys['ArrowRight'] && crane.x + crane.width < canvas.width) crane.x += crane.speed;
-  } 
-  // 落下中
-  else if (crane.dropping) {
-    if (crane.y < crane.dropY + 270) {  // 下まで届くように
+  } else if (crane.dropping) {
+    if (crane.y < 270) {
       crane.y += 4;
     } else {
       crane.armOpen = false;
       setTimeout(() => {
-        if (
-          crane.x + crane.width / 2 > prize.x &&
-          crane.x + crane.width / 2 < prize.x + prize.width
-        ) {
-          prize.caught = true;
+        for (const prize of prizes) {
+          if (
+            !prize.caught &&
+            crane.x + crane.width / 2 > prize.x &&
+            crane.x + crane.width / 2 < prize.x + prize.width
+          ) {
+            //prize.caught = true;
+            crane.currentPrize = prize;
+            break;
+          }
         }
         crane.dropping = false;
         crane.lifting = true;
       }, 500);
     }
-  } 
-  // 引き上げ中
-  else if (crane.lifting) {
+  } else if (crane.lifting) {
     if (crane.y > 50) {
       crane.y -= 4;
-      if (prize.caught) {
-        prize.y = crane.y + crane.height + 10;
-        prize.x = crane.x + crane.width / 2 - prize.width / 2;
+      if (crane.currentPrize) {
+        crane.currentPrize.y = crane.y + crane.height + 10;
+        crane.currentPrize.x = crane.x + crane.width / 2 - crane.currentPrize.width / 2;
       }
     } else {
-      if (prize.caught) {
+      if (crane.currentPrize) {
         caughtPrizeCount++;
         prizeCountElement.textContent = `取った景品数: ${caughtPrizeCount}`;
         alert("ゲット成功！🎉");
-        resetGame();
+
+        //crane.currentPrize.x = Math.random() * (canvas.width - 50);
+        // ⬇️ 景品を床の位置（y = 350）に戻す
+        //crane.currentPrize.y = 350;
+        crane.currentPrize.x = Math.random() * (canvas.width - crane.currentPrize.width);
+        crane.currentPrize.y = canvas.height - 10 - crane.currentPrize.height;
+
+
+        crane.currentPrize = null;
       } else {
         alert("失敗！もう一回💦");
       }
@@ -218,32 +217,39 @@ function update() {
   }
 }
 
-
-function resetGame() {
-  prize.x = Math.random() * 300 + 50;
-  prize.y = 350;
-  prize.caught = false;
-}
-
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawCrane();
-  drawPrize();
+  drawPrizes();
   update();
   if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
+function updateTimer() {
+  const minutes = Math.floor(remainingTime / 60);
+  const seconds = remainingTime % 60;
+  timerElement.textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+  if (remainingTime <= 0) {
+    clearInterval(timerInterval);
+    gameOver = true;
+    gameOverElement.style.display = 'block';
+  } else {
+    remainingTime--;
+  }
+}
+
+function resetGame() {
+  createPrizes();
+  crane.currentPrize = null;
+}
+
+const keys = {};
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
-
-  //Enterキーでアームを降ろす
-  if(e.key === 'Enter'){
-    if (!crane.dropping && !crane.lifting && !gameOver) {
-      crane.dropping = true;
-    }
+  if (e.key === 'Enter' && !crane.dropping && !crane.lifting && !gameOver) {
+    crane.dropping = true;
   }
 });
-
 document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
@@ -254,22 +260,19 @@ catchButton.addEventListener('click', () => {
   }
 });
 
-function updateTimer() {
-  const minutes = Math.floor(remainingTime / 60);
-  const seconds = remainingTime % 60;
-  timerElement.textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+startButton.addEventListener('click', () => {
+  startScreen.style.display = 'none';
+  gameScreen.style.display = 'block';
+  remainingTime = limitTime;
+  gameOver = false;
+  caughtPrizeCount = 0;
+  prizeCountElement.textContent = `取った景品数: 0`;
+  gameOverElement.style.display = 'none';
+  createPrizes();
+  timerInterval = setInterval(updateTimer, 1000);
+  gameLoop();
+});
 
-  if (remainingTime <= 0) {
-    clearInterval(timerInterval);
-    gameOver = true;
-    gameOverElement.style.display = 'block';
-    /*const backButton = document.getElementById("back_button");
-    if (backButton) backButton.style.display = "block";*/
-  } else {
-    remainingTime--;
-  }
-}
-  // 説明ボタンとモーダル制御
 const howToPlayButton = document.getElementById('howToPlayButton');
 const howToPlayModal = document.getElementById('howToPlayModal');
 const closeHowToPlay = document.getElementById('closeHowToPlay');
@@ -277,7 +280,7 @@ const closeHowToPlay = document.getElementById('closeHowToPlay');
 howToPlayButton.addEventListener('click', () => {
   howToPlayModal.style.display = 'block';
 });
-
 closeHowToPlay.addEventListener('click', () => {
   howToPlayModal.style.display = 'none';
 });
+
