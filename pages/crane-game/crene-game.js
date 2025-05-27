@@ -245,10 +245,28 @@ function showResult() {
   timerElement.style.display = 'none';
   prizeCountElement.style.display = 'none';
 
+  // 好感度の変更を計算
+  let affectionChange = 0;
+  if (caughtPrizeCount >= 5) {
+    affectionChange = 9;
+  } else if (caughtPrizeCount >= 3) {
+    affectionChange = 5;
+  } else if (caughtPrizeCount >= 1) {
+    affectionChange = 1;
+  } else {
+    affectionChange = -30;
+  }
+
+  // 好感度を更新
+  let currentAffection = parseInt(localStorage.getItem("好感度")) || 50;
+  currentAffection += affectionChange;
+  localStorage.setItem("好感度", currentAffection);
+
   const resultScreen = document.getElementById('resultScreen');
   const finalResult = document.getElementById('finalResult');
   resultScreen.style.display = 'block';
   finalResult.textContent = `取った景品数: ${caughtPrizeCount}`;
+  finalResult.innerHTML += `<br>好感度の変化: ${affectionChange > 0 ? '+' : ''}${affectionChange}`;
 }
 
 
