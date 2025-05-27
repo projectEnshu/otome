@@ -7,5 +7,14 @@ function updateAffectionDisplay() {
     }
 }
 
-// ページ読み込み時に好感度を表示
-document.addEventListener('DOMContentLoaded', updateAffectionDisplay);
+// エンディングボタンのクリックイベント
+document.addEventListener('DOMContentLoaded', function() {
+    updateAffectionDisplay();
+    
+    const endingButton = document.getElementById('ending-button');
+    if (endingButton) {
+        endingButton.addEventListener('click', function() {
+            window.location.href = '../ending/ending.html';
+        });
+    }
+});
