@@ -1,11 +1,129 @@
-.timer{
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: auto;
-    height: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-    font-size: 2rem;
-    padding: 10px;
-    text-align: center;
+body {
+  font-family:'M PLUS Rounded 1c', sans-serif;
+  background: radial-gradient(#fad0c4,#ffd1ff); /* 明るい背景 */
+  margin: 0;
+  padding: 0;
+  text-align: center;
 }
+
+canvas {
+  background: repeating-linear-gradient(
+    45deg,
+    #e0f7fa,
+    #e0f7fa 10px,
+    #b2ebf2 10px,
+    #b2ebf2 20px
+  );
+  border: 10px solid #ff4081; /* ピンク枠 */
+  border-radius: 20px;
+  box-shadow: 0 0 20px #ff4081;
+  margin: 20px auto;
+  display: block;
+}
+
+button {
+  background: linear-gradient(to bottom, #eaa7bd, #fc77a3);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+#timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #d50000;
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  box-shadow: 0 0 5px #ff5252;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+#prizeCount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #004d40;
+  background: #a7ffeb;
+  border-radius: 10px;
+  padding: 6px 12px;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+#back_button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(to bottom, #eaa7bd, #fc77a3);
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+  z-index: 1000;
+}
+
+#back_button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff4081;
+  margin-top: 20px;
+  text-shadow: 2px 2px #ff80ab;
+}
+h1 {
+  font-size: 120px;
+  color: #ff4081;
+  text-shadow: 3px 3px #ff80ab;
+  margin-top: 20px;
+}
+
+h2 {
+  font-size: 48px;
+  color: #ff4081;
+  margin-top: 10px;
+  text-shadow: 1px 1px #ff80ab;
+} 
+
+#resultScreen {
+  background: white;
+  border: 3px solid #ff4081;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  width: 80%;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.homeLink {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #e91e63;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
