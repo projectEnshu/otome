@@ -1,6 +1,3 @@
-// 初期好感度の設定
-localStorage.setItem("好感度", 50);
-
 // 好感度の表示を更新する関数
 function updateAffectionDisplay() {
     const affection = localStorage.getItem("好感度");
