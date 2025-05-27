@@ -331,7 +331,33 @@ function create() {
                 ease: 'Power2'
               });
               this.time.delayedCall(1000, () => {
-                this.add.text(this.scale.width/2, this.scale.height/2, `叩けたカバの数：${score}匹`, {fontSize:'32px', fill:'#000'})
+                // 好感度の計算
+                let affectionChange = 0;
+                if (score >= 80) {
+                  affectionChange = 30;
+                } else if (score >= 70) {
+                  affectionChange = 18;
+                } else if (score >= 60) {
+                  affectionChange = 6;
+                } else {
+                  affectionChange = -6;
+                }
+
+                // 現在の好感度を取得して更新
+                let currentAffection = parseInt(localStorage.getItem("好感度")) || 50;
+                currentAffection += affectionChange;
+                localStorage.setItem("好感度", currentAffection);
+
+                // スコアと好感度の変化を表示
+                this.add.text(this.scale.width/2, this.scale.height/2 - 50, `叩けたカバの数：${score}匹`, {fontSize:'32px', fill:'#000'})
+                .setOrigin(0.5)
+                .setDepth(1001);
+
+                this.add.text(this.scale.width/2, this.scale.height/2 + 50, `好感度の変化：${affectionChange > 0 ? '+' : ''}${affectionChange}`, {fontSize:'32px', fill:'#000'})
+                .setOrigin(0.5)
+                .setDepth(1001);
+
+                this.add.text(this.scale.width/2, this.scale.height/2 + 150, `現在の好感度：${currentAffection}`, {fontSize:'32px', fill:'#000'})
                 .setOrigin(0.5)
                 .setDepth(1001);
 
