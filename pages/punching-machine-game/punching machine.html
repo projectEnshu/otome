@@ -12,7 +12,7 @@
     }
 
     body.game {
-      background-image: url('パンチゲーム.png');
+      background-image: url('スクリーンショット 2025-05-24 13.44.50.png');
       background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
@@ -46,6 +46,11 @@
     #timer {
       top: 100px;
       right: 400px;
+    }
+
+    #love {
+      top: 100px;
+      left: 450px;
     }
 
     #startMessage {
@@ -108,7 +113,7 @@
 
   <!-- 結果画面 -->
   <div id="resultScreen">
-    <img src="枠組み.jpg" class="resultBackground" alt="リザルト背景">
+    <img src="スクリーンショット 2025-05-24 14.21.39.png" class="resultBackground" alt="リザルト背景">
     <h2>結果発表！</h2>
     <div id="finalScore"></div>
     <div id="evaluation"></div>
@@ -191,7 +196,7 @@
       document.getElementById('finalScore').textContent = `連打数: ${count}`;
       document.getElementById('evaluation').textContent = `評価：${evaluation}`;
 
-      // 背景切り替えクラスは使わない（画像で直接表示）
+      
       document.body.className = "";
     }
 
