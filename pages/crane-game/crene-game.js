@@ -233,10 +233,24 @@ function updateTimer() {
     clearInterval(timerInterval);
     gameOver = true;
     gameOverElement.style.display = 'block';
+     showResult(); // ← ここで表示！
   } else {
     remainingTime--;
   }
 }
+
+function showResult() {
+  document.getElementById('gameCanvas').style.display = 'none';
+  document.getElementById('catchButton').style.display = 'none';
+  timerElement.style.display = 'none';
+  prizeCountElement.style.display = 'none';
+
+  const resultScreen = document.getElementById('resultScreen');
+  const finalResult = document.getElementById('finalResult');
+  resultScreen.style.display = 'block';
+  finalResult.textContent = `取った景品数: ${caughtPrizeCount}`;
+}
+
 
 function resetGame() {
   createPrizes();

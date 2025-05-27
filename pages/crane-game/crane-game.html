@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>クレーンゲーム</title>
+  <title id="title">クレーンゲーム</title>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <style>
     canvas {
       background: #f0f8ff;
@@ -43,9 +44,15 @@
     <button id="catchButton">ここだ！</button>
     <div id="prizeCount">取った景品数: 0</div>
     <div id="gameOver" id = "gameOver">
-      <h1>終了！</h1>
     </div>
   </div>
+
+  <!-- リザルト画面 -->
+<div id="resultScreen" style="display:none; text-align:center; padding: 20px;">
+  <h2>🎉ゲーム終了！🎉</h2>
+  <p id="finalResult">取った景品数: 0</p>
+  <a href="../selection/selection.html" class="homeLink">ホームに戻る</a>
+</div>
 
   <!-- 説明画面（モーダル） -->
 <div id="howToPlayModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6);">
