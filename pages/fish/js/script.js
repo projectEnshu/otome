@@ -32,8 +32,8 @@ window.onload = function() {
 
     var days = [{
         "day": 0,
-        "score": 20,
-        "instruction": "<p>You are on a fishing trip!<br>There are total of 5 days to go through.<br>You need to get a certain score to proceed to the next day</p><p>Happy fishing!</p>"
+        "score": 60,
+        "instruction": "<p>ゲーム説明<br>カーソルで魚に触れると釣れるよ</p><p>Happy fishing!</p>"
     },{
         "day": 1,
         "score": 30,
@@ -122,46 +122,20 @@ window.onload = function() {
             case 1:
                 createFishInterval = setInterval(createFish, 250);
                 break;
-
-            case 2:
-                createFishInterval = setInterval(createFish, 250);
-                createRareFishInterval = setInterval(createRareFish, 2200);
-                break;
-
-            case 3:
-                createFishInterval = setInterval(createFish, 250);
-                createRareFishInterval = setInterval(createRareFish, 1500);
-                createTrashInterval = setInterval(createTrash, 1000);
-                break;
-
-            case 4:
-                createFishInterval = setInterval(createFish, 250);
-                createRareFishInterval = setInterval(createRareFish, 1250);
-                createTrashInterval = setInterval(createTrash, 1500);
-                createJellyfishInterval = setInterval(createJellyfish,2000);
-                break;
-
-            case 5:
-                createFishInterval = setInterval(createFish, 200);
-                createRareFishInterval = setInterval(createRareFish, 1100);
-                createTrashInterval = setInterval(createTrash, 1500);
-                createJellyfishInterval = setInterval(createJellyfish,2000);
-                createSharkInterval = setInterval(createShark,4000);
-                break;
         }
     }
     //create timer function
     function createTimer () {
-        gameTimer.innerText = "15s";
+        gameTimer.innerText = "30s";
         gameScore.innerText = "Total Score: 0";
         let sec = 0;
         gameTimerInterval = setInterval(startGameTimer, 1000);
         function startGameTimer () {
-            gameTimer.textContent = 15-sec+"s";
-            if (sec === 15) {
+            gameTimer.textContent = 30-sec+"s";
+            if (sec === 30) {
                 sec = 0;
                 endDay(false);
-                gameTimer.textContent = 15-sec+"s";
+                gameTimer.textContent = 30-sec+"s";
                 gameTimer.classList.remove("warning");
                 gameTimerGauge.classList.remove("ticking");
             }
@@ -429,7 +403,7 @@ window.onload = function() {
         startBtn.style.top = "66%";
         if (!died) {
             console.log (`Day${day}`);
-            if (day < 5) {
+            if (day < 1) {
                 if (currentScore<=days[day-1].score){
                     instructions.innerHTML = `<h2>END OF DAY 0${day}</h2>Your score for the day: ${currentScore}</p><p>Your score is not high enough. Please try again!</p>`;
                     day=0;
