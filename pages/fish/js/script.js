@@ -9,7 +9,6 @@ window.onload = function() {
     const startBtn = document.querySelector("#start-btn");
     const gameStats = document.querySelector("#game-stats");
     const gameGoal = document.querySelector("#game-goal");
-    const gameDay = document.querySelector("#game-day");
     const gameTimer = document.querySelector("#game-timer");
     const gameTimerGauge = document.querySelector(".timer-gauge");
     const gameScore = document.querySelector("#game-score");
@@ -18,7 +17,6 @@ window.onload = function() {
         y:0
     }
     var gameTimerInterval = null;
-    var day = 0;
     var score = 0;
     var currentScore = 0;
     var fishTracker = [0,0,0,0] //first item is fish, second is rare fish, third is trash, fourth is jellyfish. no sharks as it will lead to autolose
@@ -29,28 +27,6 @@ window.onload = function() {
     var createTrashInterval = null;
     var createJellyfishInterval = null;
     var createSharkInterval = null;
-
-    var days = [{
-        "day": 0,
-        "score": 60,
-        "instruction": "<p>ゲーム説明<br>カーソルで魚に触れると釣れるよ</p><p>Happy fishing!</p>"
-    },{
-        "day": 1,
-        "score": 30,
-        "instruction": "You can catch rare fishes now.<br>They are fast, so be ready!"
-    },{
-        "day": 2,
-        "score": 35,
-        "instruction": "Lately, more trash are found in the ocean.<br>There is penalty if you catch some.<br> Let's continue and avoid the trash!"
-    },{
-        "day": 3,
-        "score": 40,
-        "instruction": "Jellyfishes have invaded this ocean region.<br>You will get stunned if you catch them<br>Let's continue and avoid getting stunned by them!"
-    },{
-        "day": 4,
-        "score": 45,
-        "instruction": "Sharks have been sighted lately.<br>You have to restart the entire week if you catch them!<br>Let's continue and not provoke them!"
-    }];
 
     //music and sounds
     var bgm; //set bgm
@@ -72,6 +48,7 @@ window.onload = function() {
         fishingLine.style.left= mousePosition.x+"px";
         fishingLine.style.top = mousePosition.y+"px";
     }
+
     //create audio element for playing music and sfx
     function sound(src) {
         this.sound = document.createElement("audio");
@@ -90,7 +67,6 @@ window.onload = function() {
 
     //start game function
     function startGame () {
-        //day = 4;
         //initialise sounds
         blop = new sound('sfx/fish.mp3');
         rareBlop = new sound('sfx/rare-fish.mp3');
@@ -99,11 +75,9 @@ window.onload = function() {
         bite = new sound('sfx/bite.mp3');
         bgm = new sound('sfx/Bug_Catching.mp3');
         bgm.play();
-        if (day === 0){
-            fishTracker = [0,0,0,0,0];
-            score = 0;
-        }
-        currentScore=0;
+        fishTracker = [0,0,0,0];
+        score = 0;
+        currentScore = 0;
         infoWrapper.style.display = "none";
         startTitle.style.display = "none";
         clickContainer.style.display = "block";
@@ -111,19 +85,18 @@ window.onload = function() {
         gameGoal.style.display = "block";
         createItems();
     }
+
     //create items function
     function createItems() {
         createTimer();
-        day++;
-        gameDay.innerText = "Day 0"+day;
-        gameGoal.innerText = `Goal: ${currentScore}/${days[day-1].score}`;
-        //start creating items depending on the day
-        switch (day) {
-            case 1:
-                createFishInterval = setInterval(createFish, 250);
-                break;
-        }
+        gameGoal.innerText = `目標: 30匹`;
+        createFishInterval = setInterval(createFish, 250);
+        createRareFishInterval = setInterval(createRareFish, 1000);
+        createTrashInterval = setInterval(createTrash, 3000);
+        createJellyfishInterval = setInterval(createJellyfish, 3000);
+        createSharkInterval = setInterval(createShark, 3000);
     }
+
     //create timer function
     function createTimer () {
         gameTimer.innerText = "30s";
@@ -381,7 +354,7 @@ window.onload = function() {
                     clickContainer.removeChild(hitText);
                 }, 1000);
                 gameScore.innerText = `Total Score: ${score}`;
-                gameGoal.innerText = `Goal: ${currentScore}/${days[day-1].score}`;
+                gameGoal.innerText = `Goal: ${currentScore}/${30}`;
             }
         }
     }
@@ -400,28 +373,68 @@ window.onload = function() {
         gameStats.style.display = "none";
         clickContainer.style.display = "none";
         gameGoal.style.display = "none";
-        startBtn.style.top = "66%";
-        if (!died) {
-            console.log (`Day${day}`);
-            if (day < 1) {
-                if (currentScore<=days[day-1].score){
-                    instructions.innerHTML = `<h2>END OF DAY 0${day}</h2>Your score for the day: ${currentScore}</p><p>Your score is not high enough. Please try again!</p>`;
-                    day=0;
-                }
-                else {
-                    instructions.innerHTML = `<h2>END OF DAY 0${day}</h2>Your score for the day: ${currentScore}</p><p>${days[day].instruction}</p>`;
-                }
-            }
-            else {
-                instructions.innerHTML = `<h2>You have finished the entire week!</h2><p>You have caught ${fishTracker[0]} fishes, ${fishTracker[1]} rare fishes, ${fishTracker[2]} trash and ${fishTracker[2]} jellyfishes.<br>Your Total Score: ${score}</p>`;
-                day=0;
-            }
+        startBtn.style.display = "none";
 
+        // 戻るボタンの作成
+        const backButton = document.createElement("button");
+        backButton.textContent = "選択画面に戻る";
+        backButton.style.cssText = `
+            position: absolute;
+            top: 66%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        `;
+        backButton.onclick = function() {
+            // 好感度を保持したまま遷移
+            const currentAffection = localStorage.getItem("好感度");
+            if (currentAffection) {
+                localStorage.setItem("好感度", currentAffection);
+            }
+            window.location.href = "../selection/selection.html";
+        };
+        document.body.appendChild(backButton);
+
+        let currentAffection = parseInt(localStorage.getItem("好感度")) || 50;
+        let affectionChange = 0;
+
+        if (!died) {
+            const totalFish = fishTracker[0] + fishTracker[1];
+            if (totalFish >= 60) {
+                affectionChange = 6;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>素晴らしい！${totalFish}匹の魚を釣りました！</p>`;
+            } else if (totalFish >= 50) {
+                affectionChange = 5;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>よくできました！${totalFish}匹の魚を釣りました！</p>`;
+            } else if (totalFish >= 40) {
+                affectionChange = 3;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>頑張りました！${totalFish}匹の魚を釣りました！</p>`;
+            } else if (totalFish >= 30) {
+                affectionChange = 1;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>${totalFish}匹の魚を釣りました！</p>`;
+            } else {
+                affectionChange = -9;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>残念...${totalFish}匹しか釣れませんでした。</p>`;
+            }
+        } else {
+            instructions.innerHTML = `<h2>ゲームオーバー！</h2><p>サメに襲われてしまいました...</p>`;
+            affectionChange = -9;
         }
-        else {
-            day = 0;
-            instructions.innerHTML = `<h2>Too bad!</h2><p>You provoked the shark and it destroyed your boat.<br>Your entire week of fishing went to waste!</p>`;
+
+        currentAffection += affectionChange;
+        localStorage.setItem("好感度", currentAffection);
+
+        const affectionDisplay = document.getElementById("affection-display");
+        if (affectionDisplay) {
+            affectionDisplay.textContent = `現在の好感度: ${currentAffection}`;
         }
+
         infoWrapper.style.display = "block";
         startTitle.style.display = "block";
     }
@@ -446,5 +459,5 @@ window.onload = function() {
     generateBubble();
     var bubbleInterval = setInterval(generateBubble, 500);
 
-    instructions.innerHTML = `<p>${days[day].instruction}</p>`;
+    instructions.innerHTML = `<p>ゲーム説明<br>カーソルで魚に触れると釣れるよ</p><p>Happy fishing!</p>`;
 };
