@@ -38,6 +38,8 @@ function preload() {
   this.load.image('startButton', 'images/start2.png');
   // ロゴテキスト（Kabakaba Panic）
   this.load.image('kabakabaPanic', 'images/kabakabaPanic2.png');
+  // 結果画像を読み込み
+  this.load.image('result', 'images/result.png'); 
 }
 
 // ---------- ゲーム生成 ----------
@@ -67,6 +69,13 @@ function create() {
     .setOrigin(0.5, 0.56)
     .setDisplaySize(screenBgWidth, screenBgHeight)
     .setInteractive();
+
+
+  const resultImage = this.add.image(this.scale.width/2, -200, 'result')
+  .setOrigin(0.5)
+  .setAlpha(0)
+  .setDisplaySize(700, 800)  
+  .setDepth(1000);
 
   // カバを出現させる範囲の余白を定義
   const margin = {
@@ -218,17 +227,24 @@ function create() {
     .setOrigin(0.5)
     .setDisplaySize(460 * 1, 234 * 1);
 
-  // ホームへ戻るボタンを画面下部に配置
+  // // ホームへ戻るボタンを画面下部に配置
   // const homeText = this.add.text(this.scale.width / 2, this.scale.height - 50, 'ホームへ戻る', {
   //   fontSize: '24px', fill: '#fff'
   // })
   //   .setOrigin(0.5)
   //   .setInteractive({ useHandCursor: true });
 
+  // ホームへ戻るボタンを右下に配置
+  const homeText = this.add.text(this.scale.width - 20, this.scale.height - 20, 'ホームへ戻る', {
+    fontSize: '24px', fill: '#fff'
+  })
+    .setOrigin(1, 1)                      // 右下基準に配置
+    .setInteractive({ useHandCursor: true });
+
   // クリックで別ページへ遷移
-  // homeText.on('pointerdown', () => {
-  //   window.location.href = '../selection/selection.html';  // 遷移先URLを適宜変更
-  // });
+  homeText.on('pointerdown', () => {
+    window.location.href = '../selection/selection.html';  // 遷移先URLを適宜変更
+  });
 
   // 画面クリックでズームインアニメーション＆スタートボタンを有効化
   screenBg.on('pointerdown', () => {
@@ -246,8 +262,11 @@ function create() {
     this.tweens.add({ targets: kabakabaPanic, x: this.scale.width/2, y: this.scale.height/2 -224, displayWidth:460*2.1, displayHeight:234*2.1, duration:1200, ease:'Power2' });
   });
 
+                  
+
   // スタートボタン押下時の処理
   startButton.on('pointerdown', () => {
+    homeText.setVisible(false);
     startButton.setVisible(false);    // スタートボタン非表示
     kabakabaPanic.setVisible(false); // ロゴ非表示
 
@@ -267,7 +286,7 @@ function create() {
         countdownText.destroy();
         scoreText.setVisible(true);    // スコア表示
 
-        let remainingTime = 30;       // 制限時間
+        let remainingTime = 10;       // 制限時間
         const timerText = this.add.text(20,20, `残り: ${remainingTime} 秒`, { fontSize:'28px', fill:'#ff0' });
 
         // タイマーイベント（1秒ごとにカウントダウン）
@@ -295,6 +314,38 @@ function create() {
               kabaSprites.forEach(kaba => {
                 this.tweens.add({ targets:kaba, y:kaba.hiddenY, duration:800, ease:'Sine.easeIn' });
               });
+
+              timerText.setVisible(false);
+              scoreText.setVisible(false);
+
+              // 「ゲーム終了」テキストを画面中央に生成して透明状態から表示
+              const gameOverText=this.add.text(this.scale.width/2,this.scale.height/2,'ゲーム終了',{fontSize:'64px',fill:'#000'}).setOrigin(0.5); 
+              this.time.delayedCall(1500, () => {
+                gameOverText.destroy()
+              // 制限時間が 0 になった瞬間のブロック内に追加
+              this.tweens.add({
+                targets: resultImage,
+                y: this.scale.height/2,
+                alpha: 1,
+                duration: 1000,
+                ease: 'Power2'
+              });
+              this.time.delayedCall(1000, () => {
+                this.add.text(this.scale.width/2, this.scale.height/2, `叩けたカバの数：${score}匹`, {fontSize:'32px', fill:'#000'})
+                .setOrigin(0.5)
+                .setDepth(1001);
+
+                const gameOverHomeText = this.add.text(this.scale.width/ 2, this.scale.height / 2 + 250, 'ホームへ戻る', {
+                  fontSize: '24px', fill: '#000'
+                })
+                .setOrigin(0.5).setDepth(1002)
+                .setInteractive({ useHandCursor: true })
+                .on('pointerdown', () => window.location.href = '../selection/selection.html');
+              });
+
+              });
+
+  
             }
           }
         });
