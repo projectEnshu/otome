@@ -2,24 +2,33 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>スペース連打パンチマシーン</title>
+  <title>パンチングマシーン</title>
   <link rel="stylesheet" href="punching machine.css">
 </head>
 <body class="game">
-  <!-- ゲーム本体 -->
-  <div id="gameContainer"></div>
+  <div id="machine">
+    <div id="scoreDisplay">
+      <div class="label">SCORE</div>
+      <div id="scoreValue">000</div>
+    </div>
+    <div class="bar"></div>
+    <div id="punchPad">PUNCH</div>
+    <div class="bar"></div>
+    <div id="base">BASE</div>
+  </div>
   <div id="timer">残り時間: 10秒</div>
-  <div id="score">連打数: 0</div>
-  <div id="result"></div>
   <div id="startMessage">※ Enterキーで開始、スペースキーで連打‼️</div>
 
-  <!-- 結果画面 -->
   <div id="resultScreen">
-    <img src="スクリーンショット 2025-05-24 14.21.39.png" class="resultBackground" alt="リザルト背景">
-    <h2>結果発表！</h2>
-    <div id="finalScore"></div>
-    <div id="evaluation"></div>
-    <button onclick="goHome()">ホームへ戻る</button>
+    <div class="resultBox">
+      <h2>結果発表！</h2>
+      <div id="finalScore"></div>
+      <div id="evaluation"></div>
+      <button onclick="goHome()">ホームへ戻る</button>
+      <div id="heartContainer">
+        ❤️ 好感度：<span id="affectionLevel">0</span>
+      </div>
+    </div>
   </div>
 
   <script src="punching machine.js"></script>
