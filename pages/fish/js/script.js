@@ -89,7 +89,7 @@ window.onload = function() {
     //create items function
     function createItems() {
         createTimer();
-        gameGoal.innerText = `目標: 30匹`;
+        gameGoal.innerText = `Score: 0`;
         createFishInterval = setInterval(createFish, 250);
         createRareFishInterval = setInterval(createRareFish, 1000);
         createTrashInterval = setInterval(createTrash, 3000);
@@ -354,7 +354,7 @@ window.onload = function() {
                     clickContainer.removeChild(hitText);
                 }, 1000);
                 gameScore.innerText = `Total Score: ${score}`;
-                gameGoal.innerText = `Goal: ${currentScore}/${30}`;
+                gameGoal.innerText = `Score: ${score}`;
             }
         }
     }
@@ -405,25 +405,24 @@ window.onload = function() {
         let affectionChange = 0;
 
         if (!died) {
-            const totalFish = fishTracker[0] + fishTracker[1];
-            if (totalFish >= 60) {
+            if (score >= 60) {
                 affectionChange = 6;
-                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>素晴らしい！${totalFish}匹の魚を釣りました！</p>`;
-            } else if (totalFish >= 50) {
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>素晴らしい！スコア${score}点！</p><p>好感度が+6上がりました！</p>`;
+            } else if (score >= 50) {
                 affectionChange = 5;
-                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>よくできました！${totalFish}匹の魚を釣りました！</p>`;
-            } else if (totalFish >= 40) {
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>よくできました！スコア${score}点！</p><p>好感度が+5上がりました！</p>`;
+            } else if (score >= 40) {
                 affectionChange = 3;
-                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>頑張りました！${totalFish}匹の魚を釣りました！</p>`;
-            } else if (totalFish >= 30) {
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>頑張りました！スコア${score}点！</p><p>好感度が+3上がりました！</p>`;
+            } else if (score >= 30) {
                 affectionChange = 1;
-                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>${totalFish}匹の魚を釣りました！</p>`;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>スコア${score}点！</p><p>好感度が+1上がりました！</p>`;
             } else {
                 affectionChange = -9;
-                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>残念...${totalFish}匹しか釣れませんでした。</p>`;
+                instructions.innerHTML = `<h2>ゲーム終了！</h2><p>残念...スコア${score}点でした。</p><p>好感度が-9下がりました...</p>`;
             }
         } else {
-            instructions.innerHTML = `<h2>ゲームオーバー！</h2><p>サメに襲われてしまいました...</p>`;
+            instructions.innerHTML = `<h2>ゲームオーバー！</h2><p>サメに襲われてしまいました...</p><p>好感度が-9下がりました...</p>`;
             affectionChange = -9;
         }
 
@@ -437,6 +436,11 @@ window.onload = function() {
 
         infoWrapper.style.display = "block";
         startTitle.style.display = "block";
+        // 好感度の説明を非表示にする
+        const affectionInfo = document.getElementById("affection-info");
+        if (affectionInfo) {
+            affectionInfo.style.display = "none";
+        }
     }
     //Make bubbles
     var bubbles = document.getElementById('bubbles');
