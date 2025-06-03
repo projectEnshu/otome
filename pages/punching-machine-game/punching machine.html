@@ -2,240 +2,35 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>スペース連打パンチマシーン</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 50px;
-      background-color: #fafafa;
-    }
-
-    body.game {
-      background-image: url('スクリーンショット 2025-05-24 13.44.50.png');
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      transition: background 0.5s ease;
-    }
-
-    #gameContainer {
-      position: relative;
-      display: inline-block;
-      width: 1200px;
-      max-width: 100%;
-      height: 675px;
-      background-size: cover;
-      background-position: center;
-    }
-
-    #score, #timer {
-      position: absolute;
-      z-index: 10;
-      color: white;
-      font-size: 32px;
-      font-weight: bold;
-      text-shadow: 2px 2px 5px black;
-    }
-
-    #score {
-      top: 100px;
-      left: 450px;
-    }
-
-    #timer {
-      top: 100px;
-      right: 400px;
-    }
-
-    #love {
-      top: 100px;
-      left: 450px;
-    }
-
-    #startMessage {
-      font-size: 20px;
-      margin-top: 80px;
-      color: black;
-    }
-
-    #resultScreen {
-      display: none;
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .resultBackground {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: contain;
-      z-index: -1;
-    }
-
-    #resultScreen h2 {
-  font-size: 48px;       /* タイトルの文字サイズ */
-  margin-top: 80px;      /* 画面の上からの距離 */
-}
-
-#finalScore {
-  font-size: 32px;
-  margin-top: 30px;
-}
-
-#evaluation {
-  font-size: 28px;
-  margin-top: 20px;
-}
-
-#resultScreen button {
-  font-size: 20px;
-  margin-top: 40px;
-  padding: 12px 30px;
-}
-
-
-    
-  </style>
+  <title>パンチングマシーン</title>
+  <link rel="stylesheet" href="punching machine.css">
 </head>
 <body class="game">
-
-  <!-- ゲーム本体 -->
-  <div id="gameContainer"></div>
+  <div id="machine">
+    <div id="scoreDisplay">
+      <div class="label">SCORE</div>
+      <div id="scoreValue">000</div>
+    </div>
+    <div class="bar"></div>
+    <div id="punchPad">PUNCH</div>
+    <div class="bar"></div>
+    <div id="base">BASE</div>
+  </div>
   <div id="timer">残り時間: 10秒</div>
-  <div id="score">連打数: 0</div>
-  <div id="result"></div>
   <div id="startMessage">※ Enterキーで開始、スペースキーで連打‼️</div>
 
-  <!-- 結果画面 -->
   <div id="resultScreen">
-    <img src="スクリーンショット 2025-05-24 14.21.39.png" class="resultBackground" alt="リザルト背景">
-    <h2>結果発表！</h2>
-    <div id="finalScore"></div>
-    <div id="evaluation"></div>
-    <button onclick="goHome()">ホームへ戻る</button>
-    
-    
+    <div class="resultBox">
+      <h2>結果発表！</h2>
+      <div id="finalScore"></div>
+      <div id="evaluation"></div>
+      <button onclick="goHome()">ホームへ戻る</button>
+      <div id="heartContainer">
+        ❤️ 好感度：<span id="affectionLevel">0</span>
+      </div>
+    </div>
   </div>
 
-  
-
-  <script>
-    function goHome() {
-    window.location.href = "../selection/selection.html";
-    }
-    let count = 0;
-    let isRunning = false;
-    let timer;
-    let countdownInterval;
-    const totalTime = 10;
-
-    const scoreDiv = document.getElementById('score');
-    const timerDiv = document.getElementById('timer');
-    const resultDiv = document.getElementById('result');
-
-    function startGame() {
-      count = 0;
-      isRunning = true;
-      let remaining = totalTime;
-      scoreDiv.textContent = "連打数: 0";
-      timerDiv.textContent = `残り時間: ${remaining}秒`;
-      resultDiv.textContent = "";
-
-      countdownInterval = setInterval(() => {
-        remaining--;
-        timerDiv.textContent = `残り時間: ${remaining}秒`;
-        if (remaining <= 0) clearInterval(countdownInterval);
-      }, 1000);
-
-      timer = setTimeout(() => {
-        isRunning = false;
-        clearInterval(countdownInterval);
-        timerDiv.textContent = "終了！";
-        showResult();
-      }, totalTime * 1000);
-    }
-
-    const gameContainer = document.getElementById('gameContainer');
-
-    function handlePunch() {
-      if (!isRunning) {
-        startGame();
-        return;
-      }
-      count++;
-      scoreDiv.textContent = `連打数: ${count}`;
-      gameContainer.style.transform = "scale(1.05)";
-      setTimeout(() => {
-        gameContainer.style.transform = "scale(1)";
-      }, 80);
-    }
-
-    function showResult() {
-      let evaluation;
-      let affectionChange = 0;
-
-      if (count <= 30) {
-        evaluation = "まだ肩慣らしレベル！";
-        affectionChange = -5;
-      } else if (count <= 49) {
-        evaluation = "そこそこパンチャー";
-        affectionChange = 1;
-      } else if (count <= 74) {
-        evaluation = "鉄拳マスター！";
-        affectionChange = 5;
-      } else {
-        evaluation = "人間やめました？";
-        affectionChange = 30;
-      }
-
-      // 好感度の更新
-      let currentAffection = parseInt(localStorage.getItem("好感度")) || 50;
-      currentAffection += affectionChange;
-      localStorage.setItem("好感度", currentAffection);
-
-      scoreDiv.style.display = "none";
-      timerDiv.style.display = "none";
-      document.getElementById('gameContainer').style.display = 'none';
-      document.getElementById('startMessage').style.display = 'none';
-
-      document.getElementById('resultScreen').style.display = 'block';
-      document.getElementById('finalScore').textContent = `連打数: ${count}`;
-      document.getElementById('evaluation').textContent = `評価：${evaluation}`;
-      document.getElementById('evaluation').innerHTML += `<br>好感度の変化: ${affectionChange > 0 ? '+' : ''}${affectionChange}`;
-
-      document.body.className = "";
-    }
-
-    function restartGame() {
-      document.getElementById('gameContainer').style.display = 'inline-block';
-      document.getElementById('startMessage').style.display = 'block';
-      document.getElementById('resultScreen').style.display = 'none';
-
-      count = 0;
-      isRunning = false;
-      scoreDiv.textContent = "連打数: 0";
-      timerDiv.textContent = "残り時間: 10秒";
-      scoreDiv.style.display = "block";
-      timerDiv.style.display = "block";
-
-      document.body.className = "game";
-    }
-
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Enter" && !isRunning) {
-        e.preventDefault();
-        startGame();
-      } else if (e.code === "Space" && isRunning && !e.repeat) {
-        e.preventDefault();
-        handlePunch();
-      }
-
-    });
-  </script>
+  <script src="punching machine.js"></script>
 </body>
 </html>
