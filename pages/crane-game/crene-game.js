@@ -16,6 +16,10 @@ let remainingTime = limitTime;
 let gameOver = false;
 let caughtPrizeCount = 0;
 
+window.addEventListener('DOMContentLoaded', () => {
+  updateStartAffectionDisplay();
+});
+
 const crane = {
 
   x: 180,
@@ -48,19 +52,6 @@ prizeImages[2].src = './images/image3.PNG';
 prizeImages[3].src = './images/image4.PNG';
 
 
-/*function createPrizes() {
-  prizes = [];
-  for (let i = 0; i < PRIZE_COUNT; i++) {
-    prizes.push({
-      x: Math.random() * (canvas.width - 50),
-      y:  canvas.height - 10 - 80,  // 80は prize.height,
-      width: 100,
-      height: 100,
-      image: prizeImages[Math.floor(Math.random() * prizeImages.length)],
-      caught: false
-    });
-  }
-}*/
 function createPrizes() {
   prizes = [];
 
@@ -247,9 +238,9 @@ function showResult() {
 
   // 好感度の変更を計算
   let affectionChange = 0;
-  if (caughtPrizeCount >= 5) {
+  if (caughtPrizeCount >= 9) {
     affectionChange = 9;
-  } else if (caughtPrizeCount >= 3) {
+  } else if (caughtPrizeCount >= 5) {
     affectionChange = 5;
   } else if (caughtPrizeCount >= 1) {
     affectionChange = 1;
@@ -268,6 +259,22 @@ function showResult() {
   finalResult.textContent = `取った景品数: ${caughtPrizeCount}`;
   finalResult.innerHTML += `<br>好感度の変化: ${affectionChange > 0 ? '+' : ''}${affectionChange}`;
 }
+
+function updateStartAffectionDisplay() {
+  const affection = parseInt(localStorage.getItem("好感度")) || 50;
+  const heartContainer = document.getElementById('startAffectionHearts');
+  const affectionText = document.getElementById('startAffectionText');
+
+  affectionText.textContent = `現在の好感度: ${affection} `;
+  heartContainer.innerHTML = '';
+
+  const maxHearts = 5;
+  const heartCount = Math.round((affection / 100) * maxHearts);
+
+  heartContainer.textContent = '❤️'.repeat(heartCount);
+}
+
+
 
 
 function resetGame() {

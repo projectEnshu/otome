@@ -29,9 +29,15 @@
 <body>
   <!-- スタート画面 -->
   <div id="startScreen">
-    <h1>クレーンゲーム</h1>
+    <img src="images/クレーンゲームロゴ.png" width="900" alt="クレーンゲームロゴ" style="display:block; margin: 0 auto;">
     <button id="startButton">スタート</button>
-     <button id = "howToPlayButton">説明を見る</button>
+    <button id = "howToPlayButton">説明を見る</button>
+     <!-- 好感度表示（❤️絵文字） -->
+    <div id="startAffectionDisplay" style="margin-bottom: 20px; color: #ff4081; font-weight: bold; font-size: 25px;">
+    <span id="startAffectionText">現在の好感度:</span>
+    <span id="startAffectionHearts" style="font-size: 24px;"></span>
+    </div>
+    </p>
   </div>
 
 
@@ -61,6 +67,11 @@
     <p>← → キーでクレーンを左右に動かします。</p>
     <p>「ここだ！」ボタン または Enterキーでアームを下ろします。</p>
     <p>景品の真上でキャッチできたら成功です！</p>
+    <p>30秒以内にできるだけ多くの景品を取ってください。</p>
+    <p>獲得景品数9個以上で好感度が9上がります</p>
+    <p>獲得景品数5個以上で好感度が5上がります</p>
+    <p>獲得景品数1個以上で好感度が1上がります</p>
+    <p>獲得景品数0個で好感度が30下がります</p>
     <button id="closeHowToPlay">閉じる</button>
   </div>
 
