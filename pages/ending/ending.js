@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 好感度をリセット
             localStorage.setItem("好感度", 50);
             // top.htmlに遷移
-            window.location.href = '/top.html';
+            window.location.href = '/index.html';
         });
     }
 });
