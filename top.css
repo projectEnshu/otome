@@ -7,13 +7,17 @@
   
   body {
     height: 100vh;
-    background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+    margin: 0;
     font-family: 'Segoe UI', sans-serif;
+    background-image: url('ゲーセン.png'); /* 画像のパスに合わせて */
+    background-size: cover;       /* 画面全体にフィット */
+    background-position: center;  /* 中央に配置 */
+    background-repeat: no-repeat; /* 繰り返さない */
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
   }
+  
   
   /* タイトル画面 */
   #title-screen {
@@ -25,9 +29,13 @@
   /* タイトル */
   .game-title {
     font-size: 4rem;
-    margin-bottom: 40px;
-    animation: bounceGlow 3s ease-in-out infinite;
-    text-shadow: 0 0 10px #fff, 0 0 20px #f0f, 0 0 40px #0ff;
+    color: black; /* 黒文字 */
+    text-shadow:
+      0 0 5px white,
+      0 0 10px white,
+      0 0 20px white,
+      0 0 40px white; /* 強い白光でグローを作る */
+    animation: glowAndFloat 2s infinite ease-in-out;
   }
   
   /* 開始ボタン */
@@ -60,14 +68,20 @@
   }
   
   /* タイトルに跳ねる＋光るアニメーション */
-  @keyframes bounceGlow {
+  @keyframes glowAndFloat {
     0%, 100% {
       transform: translateY(0);
-      text-shadow: 0 0 10px #fff, 0 0 20px #f0f, 0 0 40px #0ff;
+      text-shadow:
+        0 0 5px white,
+        0 0 10px white,
+        0 0 20px white;
     }
     50% {
-      transform: translateY(-15px);
-      text-shadow: 0 0 15px #fff, 0 0 30px #ff0, 0 0 60px #f0f;
+      transform: translateY(-10px); /* 上にふわっと浮く */
+      text-shadow:
+        0 0 2px white,
+        0 0 4px white,
+        0 0 8px white;
     }
   }
   
