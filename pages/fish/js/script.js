@@ -83,6 +83,15 @@ window.onload = function() {
         clickContainer.style.display = "block";
         gameStats.style.display = "flex";
         gameGoal.style.display = "block";
+        
+        // クラゲを削除
+        const jellyfishes = document.querySelectorAll('.jellyfish');
+        jellyfishes.forEach(jellyfish => {
+            if (clickContainer.contains(jellyfish)) {
+                clickContainer.removeChild(jellyfish);
+            }
+        });
+        
         createItems();
     }
 
@@ -93,7 +102,8 @@ window.onload = function() {
         createFishInterval = setInterval(createFish, 250);
         createRareFishInterval = setInterval(createRareFish, 1000);
         createTrashInterval = setInterval(createTrash, 3000);
-        createJellyfishInterval = setInterval(createJellyfish, 3000);
+        // クラゲの生成を停止
+        // createJellyfishInterval = setInterval(createJellyfish, 3000);
         createSharkInterval = setInterval(createShark, 3000);
     }
 
@@ -463,5 +473,11 @@ window.onload = function() {
     generateBubble();
     var bubbleInterval = setInterval(generateBubble, 500);
 
-    instructions.innerHTML = `<p>ゲーム説明<br>カーソルで魚に触れると釣れるよ</p><p>Happy fishing!</p>`;
+    instructions.innerHTML = `<p>ゲーム説明<br>
+    カーソルで魚に触れると釣れるよ<br>
+    黄色い魚: スコア+1<br>
+    紫の魚: スコア+5<br>
+    サメに触れるとゲームオーバー！<br>
+    30秒で終了！</p>
+`;
 };
