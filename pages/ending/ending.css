@@ -1,0 +1,56 @@
+/* 全体の背景 */
+body {
+    margin: 0;
+    padding: 0;
+    background: url('https://images.unsplash.com/photo-1530650577179-d0bfb0112242?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'ヒラギノ角ゴシック', 'メイリオ', sans-serif;
+    color: #fff;
+}
+
+/* テキスト表示部分 */
+#textbox {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    box-sizing: border-box;
+    min-height: 150px;
+}
+
+/* キャラクター名のスタイル */
+#speaker {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #ffe066;
+}
+
+/* セリフテキスト */
+#message {
+    font-size: 1rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* 「Next」ボタン */
+#next-button {
+  position: absolute;       /* ← 画面内での位置指定（親要素がrelative or absoluteなら有効） */
+  right: 20px;              /* 右から20pxの位置に配置 */
+  bottom: 20px;             /* 下から20pxの位置に配置 */
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: #ffe066;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+#next-button:hover {
+    background: #ffda77;
+}
