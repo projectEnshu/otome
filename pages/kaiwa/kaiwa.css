@@ -54,12 +54,13 @@
     #boyfriend {
         position: absolute;
         bottom: 0;
-        right: 0;
-        width: 850px;
+        width: 500px;
         height: auto;
+        left: 30%;
     }
     #boyfriend img {
         width: 100%;
         height: auto;
         display: block;
+        margin: auto;
     }
