@@ -1,0 +1,66 @@
+/* 全体の背景 */
+    body {
+      margin: 0;
+      padding: 0;
+      background: url(images/scene_bg.png);
+      background-size: cover;
+      font-family: 'ヒラギノ角ゴシック', 'メイリオ', sans-serif;
+      color: #fff;
+    }
+
+    /* テキスト表示部分 */
+    #textbox {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: 150px;
+    }
+
+    /* キャラクター名のスタイル */
+    #speaker {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: #ffe066;
+    }
+
+    /* セリフテキスト */
+    #message {
+      font-size: 1rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    /* 「Next」ボタン */
+    #next-button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      background: #ffe066;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    #next-button:hover {
+      background: #ffda77;
+    }
+
+    #boyfriend {
+        position: absolute;
+        bottom: 0;
+        width: 500px;
+        height: auto;
+        left: 30%;
+    }
+    #boyfriend img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: auto;
+    }
