@@ -29,8 +29,11 @@
       } else {
         // 会話が終わったらボタンを非表示にしておまけメッセージを表示
         speakerElem.textContent = '';
-        messageElem.textContent = '次へを押して、ゲームをスタートしよう！彼からの好感度をあげよう！';
+        messageElem.textContent = 'ゲームスタート！彼からの好感度をあげよう！';
         nextButton.style.display = 'none';
+        setTimeout(() => {
+        window.location.href = '../selection/selection.html';
+},      2000);
       }
     }
 
