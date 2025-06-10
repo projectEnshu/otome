@@ -4,19 +4,22 @@ const config = {
   type: Phaser.AUTO,
   // 画面サイズやリサイズ挙動の設定
   scale: {
-    mode: Phaser.Scale.RESIZE,            // ウィンドウサイズに合わせて自動リサイズ
-    width: '100%',                         // 幅は画面幅いっぱい
-    height: '100%',                        // 高さは画面高さいっぱい
-    autoCenter: Phaser.Scale.CENTER_BOTH   // 画面中央に配置
+    mode: Phaser.Scale.RESIZE,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    autoCenter: Phaser.Scale.CENTER_BOTH
   },
+
   // 背景色をダークグレーに設定
   backgroundColor: '#2d2d2d',
   // 使用するシーンのメソッドを指定
+
   scene: {
     preload,                                // アセットの読み込み
     create,                                 // ゲームオブジェクトの生成
     update                                  // フレームごとの更新処理
   }
+
 };
 
 // Phaserゲームインスタンスを生成
@@ -38,9 +41,10 @@ function preload() {
   this.load.image('startButton', 'images/start2.png');
   // ロゴテキスト（Kabakaba Panic）
   this.load.image('kabakabaPanic', 'images/kabakabaPanic2.png');
-  // 結果画像を読み込み
+  // リザルトのフレーム
   this.load.image('result', 'images/result.png'); 
 }
+
 
 // ---------- ゲーム生成 ----------
 function create() {
@@ -94,7 +98,7 @@ function create() {
   // カバの最小・最大サイズと最大表示数を設定
   const minSize = 60;
   const maxSize = 200;
-  const maxKabas = 10;
+  const maxKabas = 7;
   const kabaSprites = [];
   let zoomed = false;     // 画面拡大済みフラグ
   let gameOver = false;   // ゲーム終了フラグ
@@ -102,7 +106,7 @@ function create() {
 
   // スコアテキスト（ゲーム開始前は非表示）
   const scoreText = this.add.text(this.scale.width - 160, 20, `スコア: 0`, {
-    fontSize: '28px', fill: '#0f0'
+    fontSize: '28px', fill: '#0f0', fontStyle: 'bold', padding: { top: 6, bottom: 6 } 
   }).setVisible(false);
 
   // ランダムな位置とサイズを計算して返すヘルパー関数
@@ -227,16 +231,20 @@ function create() {
     .setOrigin(0.5)
     .setDisplaySize(460 * 1, 234 * 1);
 
-  // // ホームへ戻るボタンを画面下部に配置
-  // const homeText = this.add.text(this.scale.width / 2, this.scale.height - 50, 'ホームへ戻る', {
-  //   fontSize: '24px', fill: '#fff'
-  // })
-  //   .setOrigin(0.5)
-  //   .setInteractive({ useHandCursor: true });
+  const ruleText = this.add.text(this.scale.width / 2 , this.scale.height / 2 + 40, '30秒以内にカバをクリック！！', {
+    fontSize: '24px',
+    fill: '#f90',
+    fontStyle: 'bold',
+    padding: { top: 6, bottom: 6 } 
+  })
+    .setOrigin(0.5) 
+
 
   // ホームへ戻るボタンを右下に配置
   const homeText = this.add.text(this.scale.width - 20, this.scale.height - 20, 'ホームへ戻る', {
-    fontSize: '24px', fill: '#fff'
+    fontSize: '24px',
+    fill: '#fff',
+    fontStyle: 'bold'
   })
     .setOrigin(1, 1)                      // 右下基準に配置
     .setInteractive({ useHandCursor: true });
@@ -260,6 +268,17 @@ function create() {
     }});
     // ロゴも拡大
     this.tweens.add({ targets: kabakabaPanic, x: this.scale.width/2, y: this.scale.height/2 -224, displayWidth:460*2.1, displayHeight:234*2.1, duration:1200, ease:'Power2' });
+
+    this.tweens.add({
+    targets: ruleText,
+    // 中心位置はそのまま、scaleX/Y でサイズを倍に
+    scaleX: 2,
+    scaleY: 2,
+    // 必要に応じて y 座標を少しずらす場合は uncomment
+     y: this.scale.height/2 + 15,
+    duration: 1200,
+    ease: 'Power2'
+  });
   });
 
                   
@@ -269,9 +288,10 @@ function create() {
     homeText.setVisible(false);
     startButton.setVisible(false);    // スタートボタン非表示
     kabakabaPanic.setVisible(false); // ロゴ非表示
+    ruleText.setVisible(false)
 
     // カウントダウンテキストを中央に表示
-    const countdownText = this.add.text(this.scale.width/2, this.scale.height/2, '', { fontSize:'80px', fill:'#fff' }).setOrigin(0.5);
+    const countdownText = this.add.text(this.scale.width/2, this.scale.height/2, '', { fontSize:'80px', fill:'#fff', fontStyle: 'bold' }).setOrigin(0.5);
     const countdownNumbers = ['3','2','1',''];
     let index = 0;
 
@@ -286,8 +306,8 @@ function create() {
         countdownText.destroy();
         scoreText.setVisible(true);    // スコア表示
 
-        let remainingTime = 10;       // 制限時間
-        const timerText = this.add.text(20,20, `残り: ${remainingTime} 秒`, { fontSize:'28px', fill:'#ff0' });
+        let remainingTime = 30;       // 制限時間
+        const timerText = this.add.text(20,20, `残り: ${remainingTime} 秒`, { fontSize:'28px', fill:'#ff0',  fontStyle: 'bold', padding: { top: 6, bottom: 6 } });
 
         // タイマーイベント（1秒ごとにカウントダウン）
         this.time.addEvent({
@@ -296,6 +316,9 @@ function create() {
           callback: ()=>{
             remainingTime--;
             timerText.setText(`残り: ${remainingTime} 秒`);
+            if (remainingTime === 10){
+              scoreText.setVisible(false);
+            }
             if (remainingTime === 0) {
               gameOver = true;
 
@@ -319,7 +342,7 @@ function create() {
               scoreText.setVisible(false);
 
               // 「ゲーム終了」テキストを画面中央に生成して透明状態から表示
-              const gameOverText=this.add.text(this.scale.width/2,this.scale.height/2,'ゲーム終了',{fontSize:'64px',fill:'#000'}).setOrigin(0.5); 
+              const gameOverText=this.add.text(this.scale.width/2,this.scale.height/2,'ゲーム終了',{fontSize:'64px',fill:'#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } }).setOrigin(0.5); 
               this.time.delayedCall(1500, () => {
                 gameOverText.destroy()
               // 制限時間が 0 になった瞬間のブロック内に追加
@@ -349,20 +372,20 @@ function create() {
                 localStorage.setItem("好感度", currentAffection);
 
                 // スコアと好感度の変化を表示
-                this.add.text(this.scale.width/2, this.scale.height/2 - 50, `叩けたカバの数：${score}匹`, {fontSize:'32px', fill:'#000'})
+                this.add.text(this.scale.width/2, this.scale.height/2 - 130, `叩けたカバの数：${score}匹`, {fontSize:'32px', fill:'#000', fontStyle: 'bold', padding: { top: 6, bottom: 6 } })
                 .setOrigin(0.5)
                 .setDepth(1001);
 
-                this.add.text(this.scale.width/2, this.scale.height/2 + 50, `好感度の変化：${affectionChange > 0 ? '+' : ''}${affectionChange}`, {fontSize:'32px', fill:'#000'})
+                this.add.text(this.scale.width/2, this.scale.height/2 - 30, `好感度の変化：${affectionChange > 0 ? '+' : ''}${affectionChange}`, {fontSize:'32px', fill:'#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } })
                 .setOrigin(0.5)
                 .setDepth(1001);
 
-                this.add.text(this.scale.width/2, this.scale.height/2 + 150, `現在の好感度：${currentAffection}`, {fontSize:'32px', fill:'#000'})
+                this.add.text(this.scale.width/2, this.scale.height/2 + 70, `現在の好感度：${currentAffection}`, {fontSize:'32px', fill:'#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } })
                 .setOrigin(0.5)
                 .setDepth(1001);
 
                 const gameOverHomeText = this.add.text(this.scale.width/ 2, this.scale.height / 2 + 250, 'ホームへ戻る', {
-                  fontSize: '24px', fill: '#000'
+                  fontSize: '24px', fill: '#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } 
                 })
                 .setOrigin(0.5).setDepth(1002)
                 .setInteractive({ useHandCursor: true })
@@ -378,7 +401,7 @@ function create() {
 
         // 各カバの最初の出現アニメーションをランダムなタイミングで開始
         kabaSprites.forEach(kaba => {
-          this.time.delayedCall(Phaser.Math.Between(500,3000), ()=>{
+          this.time.delayedCall(Phaser.Math.Between(200,5000), ()=>{
             animateKaba.call(this, kaba);
           });
         });
@@ -391,3 +414,7 @@ function create() {
 
 // 未使用
 function update() {}
+
+window.addEventListener('resize', () => {
+  game.scale.resize(window.innerWidth, window.innerHeight);
+});
