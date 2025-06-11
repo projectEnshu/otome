@@ -9,7 +9,7 @@
     height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-image: url('ゲーセン.png'); /* 画像のパスに合わせて */
+    background-image: url('images/ゲーセン.png'); /* 画像のパスに合わせて */
     background-size: cover;       /* 画面全体にフィット */
     background-position: center;  /* 中央に配置 */
     background-repeat: no-repeat; /* 繰り返さない */

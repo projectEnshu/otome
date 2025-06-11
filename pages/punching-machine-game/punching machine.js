@@ -48,13 +48,13 @@ function showResult() {
   let evaluation;
   let affectionChange = 0;
 
-  if (count <= 30) {
+  if (count <= 49) {
     evaluation = "まだ肩慣らしレベル！";
     affectionChange = -5;
-  } else if (count <= 49) {
+  } else if (count <= 74) {
     evaluation = "そこそこパンチャー";
     affectionChange = 1;
-  } else if (count <= 74) {
+  } else if (count <= 109) {
     evaluation = "鉄拳マスター！";
     affectionChange = 5;
   } else {
