@@ -110,6 +110,9 @@ nextButton.addEventListener('click', () => {
   if (currentIndex < script.length) {
     showLine(currentIndex);
   } else {
+    // 好感度をリセット
+    localStorage.setItem("好感度", 50);
+    localStorage.setItem("disabledButtons", JSON.stringify([]));
     // 会話がすべて終わったらホームにリダイレクト
     window.location.href = '../../index.html';  // ← ここをあなたのホームページURLに書き換えてください
   }
