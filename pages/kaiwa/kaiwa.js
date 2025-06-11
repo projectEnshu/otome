@@ -46,3 +46,4 @@
     window.addEventListener('load', () => {
       showLine(currentIndex);
     });
+    
