@@ -1,12 +1,129 @@
-html, body {
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  background-color: #222;
+  height: 100vh;
   overflow: hidden;
 }
-canvas {
-  display: block;
+
+#game-container {
   width: 100vw;
   height: 100vh;
 }
+
+/* 完全に文字だけの表示 */
+#countdown {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* テキストスタイルのみ */
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 6rem;
+  color: #FFFFFF;
+
+  /* 軽く縁取りだけ残す */
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(0, 0, 0, 0.3);
+
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+/* ポップイン＆スケールダウンするアニメーション */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* JS で数字を更新するたびにこのクラスを付与 */
+#countdown.pop {
+  animation: popIn 0.6s ease-out forwards;
+}
+
+/* style.css の末尾あたりに追記 */
+#timer, #score {
+  position: absolute;
+  display: none;      /* Phaser 側で表示/非表示を制御 */
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+/* timer 固有 */
+#timer {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 3rem;
+  color: #FFFFFF;
+  /* text-shadow はそのまま */
+  text-shadow:
+    0 0 8px rgba(0,0,0,0.5),
+    0 0 12px rgba(0,0,0,0.3);
+}
+
+/* score 固有 */
+#score {
+    /* 既存の定義 のあとに追加 */
+  transform: scale(1);
+  /* 右上基準はこのまま */
+  transform-origin: top right;
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 3rem;
+  color: #FFFFFF;
+  text-shadow:
+    0 0 8px rgba(0,0,0,0.5),
+    0 0 12px rgba(0,0,0,0.3);
+}
+
+
+
+
+
+/* 終了メッセージ（初期は隠す） :contentReference[oaicite:1]{index=1} */
+#endMessage {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  /* 中央化＆フレックスセンター */
+  display: none; /* 初期は非表示 */
+  justify-content: center;
+  align-items: center;
+  transform: translate(-50%, -50%);
+
+  /* テキストだけなので padding で余白確保 */
+  padding: 1rem 2rem;
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 6rem;
+  color: #FFFFFF;
+  text-shadow:
+    0 0 8px rgba(0,0,0,0.5),
+    0 0 12px rgba(0,0,0,0.3);
+
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  opacity: 0; /* アニメ開始用 */
+}
+
+#endMessage.pop {
+  animation: popIn 0.6s ease-out forwards;
+}
+
+
