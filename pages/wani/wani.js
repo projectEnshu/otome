@@ -1,420 +1,718 @@
-// Phaserゲームの基本設定をオブジェクトで定義
 const config = {
-  // レンダラーを自動選択（WebGL優先、fallbackでCanvas）
-  type: Phaser.AUTO,
-  // 画面サイズやリサイズ挙動の設定
-  scale: {
-    mode: Phaser.Scale.RESIZE,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    autoCenter: Phaser.Scale.CENTER_BOTH
-  },
-
-  // 背景色をダークグレーに設定
-  backgroundColor: '#2d2d2d',
-  // 使用するシーンのメソッドを指定
-
-  scene: {
-    preload,                                // アセットの読み込み
-    create,                                 // ゲームオブジェクトの生成
-    update                                  // フレームごとの更新処理
-  }
-
+    type: Phaser.AUTO,
+    parent: 'game-container',
+    width: 800,
+    height: 600,
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    scene: {
+        preload,
+        create,
+        resize
+    }
 };
 
-// Phaserゲームインスタンスを生成
 const game = new Phaser.Game(config);
 
-// ---------- アセット読み込み ----------
 function preload() {
-  // 背景画像
-  this.load.image('sceneBg', 'images/scene_bg.png');
-  // アーケード筐体のフレーム
-  this.load.image('frame', 'images/frame.png');
-  // 画面領域の背景
-  this.load.image('screenBg', 'images/screen_bg_1.png');
-  // カバの通常状態画像
-  this.load.image('kaba', 'images/kaba2.png');
-  // カバを叩いた後の画像
-  this.load.image('kabaDown', 'images/kabaDown.png');
-  // スタートボタン
-  this.load.image('startButton', 'images/start2.png');
-  // ロゴテキスト（Kabakaba Panic）
-  this.load.image('kabakabaPanic', 'images/kabakabaPanic2.png');
-  // リザルトのフレーム
-  this.load.image('result', 'images/result.png'); 
+    this.load.image('background', 'assets/background.png');
+    this.load.image('frame', 'assets/frame.png');
+    this.load.image('rogo', 'assets/rogo.png');
+
+    this.load.image('kaba', 'assets/kaba.png');
+    this.load.image('kabaDown','assets/kabaDown.png');
+
+    this.load.image('result', 'assets/result.png');
+}
+
+function showHtmlCountdown(seconds, onComplete) {
+  const el = document.getElementById('countdown');
+  let count = seconds;
+  el.style.display = 'flex';
+  el.textContent = count;
+  el.classList.add('pop');   // 最初のポップアニメ
+
+  const intervalId = setInterval(() => {
+    count--;
+    if (count > 0) {
+      el.textContent = count;
+      el.classList.remove('pop');
+      void el.offsetWidth;    // アニメ再トリガー
+      el.classList.add('pop');
+    } else {
+      clearInterval(intervalId);
+      el.textContent = 'START!';
+      el.classList.remove('pop');
+      void el.offsetWidth;
+      el.classList.add('pop');  // ポップだけ
+
+      setTimeout(() => {
+        el.style.display = 'none';
+        onComplete && onComplete();
+      }, 800);
+    }
+  }, 1000);
+}
+
+function showTimer(seconds, onTimeout) {
+  const el = document.getElementById('timer');
+    const scoreEl = document.getElementById('score');  // スコア要素を取得
+  let time = seconds;
+  el.textContent = time;
+  el.style.display = 'block';
+  el.style.color = '#FFFFFF';
+
+  const timerId = setInterval(() => {
+    time--;
+    if (time > 0) {
+      el.textContent = time;
+      if (time < 10) {
+        el.style.color = '#FF4444';
+        el.style.textShadow = '0 0 8px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.5)';
+               scoreEl.style.display = 'none';
+      }
+    } else {
+      clearInterval(timerId);
+      el.style.display = 'none';
+
+      // ● ここで終了メッセージを表示
+      const endEl = document.getElementById('endMessage');
+      endEl.style.display = 'flex';
+      endEl.classList.remove('pop');
+      void endEl.offsetWidth;       // アニメ再トリガー
+      endEl.classList.add('pop');
+
+
+
+      // 必要なら onTimeout() 呼び出し
+      onTimeout && onTimeout();
+    }
+  }, 1000);
 }
 
 
-// ---------- ゲーム生成 ----------
+
 function create() {
-  // 背景を画面全体に表示
-  this.add.image(this.scale.width / 2, this.scale.height / 2, 'sceneBg')
-    .setOrigin(0.5)
-    .setDisplaySize(this.scale.width, this.scale.height);
+    this.isGameOver = false;
+this.hasShownResultScore = false;   // ← 追加
+// スコア初期化
+    this.score = 0;
+    const scoreEl = document.getElementById('score');
+    scoreEl.textContent = this.score;
+    this.resultSprite = null;  // ← 追加
 
-  // アーケードフレームのサイズ・位置を計算
-  const arcadeFrameWidth = this.scale.width * 0.7 * 1.2;
-  const arcadeFrameHeight = this.scale.height * 1.2;
-  const arcadeFrameX = this.scale.width / 2;
-  const arcadeFrameY = this.scale.height / 2 + 60;
+    // 背景とフレームの追加
+    this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0);
+    this.frame = this.add.image(0, 0, 'frame').setOrigin(0.5, 0.5);
+    // this.rogo = this.add.image(this.frame.x, this.frame.y, 'rogo').setOrigin(0.5, 0.5);
 
-  // アーケードフレームを表示
-  const frame = this.add.image(arcadeFrameX, arcadeFrameY, 'frame')
-    .setOrigin(0.5)
-    .setDisplaySize(arcadeFrameWidth, arcadeFrameHeight);
+    // コンテナを作って frame の位置に置く
+    this.rogoContainer = this.add.container(this.frame.x, this.frame.y);
+    this.rogo = this.add.image(0, 0, 'rogo').setOrigin(0.5, 0.5);
 
-  // 画面領域（カバが出現する部分）のサイズを計算
-  const screenBgWidth = arcadeFrameWidth * 0.57;
-  const screenBgHeight = arcadeFrameHeight * 0.397;
+    // ロゴをコンテナに追加
+    this.rogoContainer.add(this.rogo);
 
-  // 画面領域背景を表示し、クリックを検知可能に設定
-  const screenBg = this.add.image(arcadeFrameX, arcadeFrameY, 'screenBg')
-    .setOrigin(0.5, 0.56)
-    .setDisplaySize(screenBgWidth, screenBgHeight)
-    .setInteractive();
-
-
-  const resultImage = this.add.image(this.scale.width/2, -200, 'result')
-  .setOrigin(0.5)
-  .setAlpha(0)
-  .setDisplaySize(700, 800)  
-  .setDepth(1000);
-
-  // カバを出現させる範囲の余白を定義
-  const margin = {
-    top: this.scale.height * 0.5,
-    bottom: this.scale.height * 0.15,
-    left: this.scale.width * 0.1,
-    right: this.scale.width * 0.1
-  };
-
-  // 出現範囲の座標を定義
-  const topY = margin.top;
-  const bottomY = this.scale.height - margin.bottom;
-  const leftX = margin.left;
-  const rightX = this.scale.width - margin.right;
-
-  // カバの最小・最大サイズと最大表示数を設定
-  const minSize = 60;
-  const maxSize = 200;
-  const maxKabas = 7;
-  const kabaSprites = [];
-  let zoomed = false;     // 画面拡大済みフラグ
-  let gameOver = false;   // ゲーム終了フラグ
-  let score = 0;          // スコア管理
-
-  // スコアテキスト（ゲーム開始前は非表示）
-  const scoreText = this.add.text(this.scale.width - 160, 20, `スコア: 0`, {
-    fontSize: '28px', fill: '#0f0', fontStyle: 'bold', padding: { top: 6, bottom: 6 } 
-  }).setVisible(false);
-
-  // ランダムな位置とサイズを計算して返すヘルパー関数
-  function getRandomPositionAndSize() {
-    // X座標とY座標をランダム決定
-    const randX = Phaser.Math.Between(leftX, rightX);
-    const randY = Phaser.Math.Between(topY, bottomY);
-    // Y位置に応じて大きさを変える（遠近感）
-    const ratio = (randY - topY) / (bottomY - topY);
-    const size = minSize + (maxSize - minSize) * ratio;
-    // 画面下に隠れるY座標を計算
-    const hiddenY = bottomY + (size - minSize) * 5.2;
-    return { randX, randY, size, hiddenY };
-  }
-
-  // マスクを更新してカバの出現領域を制限する関数
-  function updateMask(kaba) {
-    const maskShape = this.make.graphics({ x: 0, y: 0, add: false });
-    maskShape.fillStyle(0xffffff);
-    maskShape.fillRect(kaba.randX - kaba.size / 2, kaba.randY - kaba.size / 2, kaba.size, kaba.size);
-    const mask = maskShape.createGeometryMask();
-    kaba.setMask(mask);
-  }
-
-  // カバをアニメーションさせる関数
-  function animateKaba(kaba) {
-    // 既にクリック済みまたはゲーム終了なら処理しない
-    if (kaba.clicked || gameOver) return;
-    // 上昇アニメーション
+    // アニメーション（コンテナが上下に動く）
     this.tweens.add({
-      targets: kaba,
-      y: kaba.randY,
-      duration: 1000,
-      ease: 'Sine.easeOut',
-      onStart: () => kaba.setDepth(kaba.displayHeight),
-      onComplete: () => {
-        if (gameOver) return;
-        // 少し待ってから下降アニメーション
-        this.time.delayedCall(1000, () => {
-          if (kaba.clicked || gameOver) return;
-          this.tweens.add({
-            targets: kaba,
-            y: kaba.hiddenY,
-            duration: 800,
-            ease: 'Sine.easeIn',
+        targets: this.rogoContainer,
+        y: '+=5',         // スクリーン上で上下に動く
+        duration: 2500,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+    });
+
+    // デバッグ用Graphicsを用意しておく（常に最前面に描くならdepthも上げておく）
+    this.debugGraphics = this.add.graphics();
+    this.debugGraphics.setDepth(1000);
+
+    // ボタン用のコンテナ作成
+    this.startButtonContainer = this.add.container(0, 0);
+
+    // 角丸ボックスを描画
+    const buttonWidth = 100;
+    const buttonHeight = 30;
+    const buttonRadius = 7;
+
+    const buttonBackground = this.add.graphics();
+    buttonBackground.fillStyle(0xE33A26, 1); // 色と透明度
+    buttonBackground.fillRoundedRect(0, 0, buttonWidth, buttonHeight, buttonRadius);
+    buttonBackground.lineStyle(2, 0xF87B0E, 1);
+    buttonBackground.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, buttonRadius);
+    buttonBackground.setOrigin?.(0.5); // 古いPhaserだと無視してOK
+
+    // テキストを作成
+    const buttonText = this.add.text(buttonWidth / 2, buttonHeight / 2, 'ゲームスタート！', {
+        fontFamily: 'Arial',
+        fontSize: '12px',
+        fontStyle: 'bold',
+        color: '#ffffff'
+    }).setOrigin(0.5);
+
+    // 当たり判定用の透明ゾーン
+    const hitArea = this.add.zone(0, 0, buttonWidth, buttonHeight).setOrigin(0).setInteractive();
+
+    // 最初は無効化
+    hitArea.disableInteractive();
+
+    // コンテナに追加（ヒットエリアを最初に追加することで下に配置）
+    this.startButtonContainer.add([hitArea, buttonBackground, buttonText]);
+
+
+    // 中心揃えのために調整
+    this.startButtonContainer.setSize(buttonWidth, buttonHeight);
+    this.startButtonContainer.setInteractive(
+        new Phaser.Geom.Rectangle(0, 0, buttonWidth, buttonHeight),
+        Phaser.Geom.Rectangle.Contains
+    );
+
+    function drawButton(graphics, fillColor, borderColor) {
+        graphics.clear();
+        graphics.fillStyle(fillColor, 1);
+        graphics.fillRoundedRect(0, 0, buttonWidth, buttonHeight, buttonRadius);
+        graphics.lineStyle(2, borderColor, 1);
+        graphics.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, buttonRadius);
+    }
+
+    this.hippoGroup = this.add.group();
+
+this.diveAllHippos = () => {
+  this.hippoGroup.getChildren().forEach(hippo => {
+    // まだクリックされていないものにだけ処理
+    if (!hippo.clicked) {
+      // 既存ツイーン／タイマーをキャンセル
+      this.tweens.killTweensOf(hippo);
+      if (hippo.delayedDescent) hippo.delayedDescent.remove(false);
+
+
+      // すぐ下降 → destroy
+      this.tweens.add({
+        targets: hippo,
+        y: hippo.startY,
+        duration: 500,
+        ease: 'Power2',
+        onComplete: () => hippo.destroy()
+      });
+    }
+  });
+};
+ 
+
+this.showResult = () => {
+  const frameX = this.frame.x;
+  const frameY = this.frame.y;
+  const frameW = this.frame.displayWidth;
+  const frameH = this.frame.displayHeight;
+
+  // result の表示幅をフレーム幅の 60% とした例
+  const tex = this.textures.get('result').getSourceImage();
+  const aspect = tex.width / tex.height;
+  const displayW = frameW * 0.22;
+  const displayH = displayW / aspect;
+
+  // 画面外（上）からスタートする Y
+  const startY = frameY - frameH/2 - displayH/2;
+
+  // 最終停止位置をフレーム中心より 10% 上に
+  const stopY = frameY - frameH * 0.021;
+
+  const img = this.add.image(frameX, startY, 'result')
+    .setOrigin(0.5)
+    .setAlpha(0)
+    .setDisplaySize(displayW, displayH);
+
+  this.resultSprite = img;
+
+  this.tweens.add({
+    targets: img,
+    y: stopY,    // ← ここを frameY から stopY に
+    alpha: 1,
+    duration: 1000,
+    ease: 'Power2'
+  });
+};
+
+
+this.showResultScore = () => {
+  const img = this.resultSprite;
+  if (!img) return;
+
+  const scoreEl = document.getElementById('score');
+
+  // --- 初回表示時だけ好感度を計算＆テキスト設定 ---
+  if (!this.hasShownResultScore) {
+    this.hasShownResultScore = true;
+
+    // --- 好感度変化を計算 ---
+    const score = this.score;
+    let affectionChange = 0;
+    if (score >= 80) {
+      affectionChange = 30;
+    } else if (score >= 70) {
+      affectionChange = 18;
+    } else if (score >= 60) {
+      affectionChange = 6;
+    } else {
+      affectionChange = -6;
+    }
+    this.affectionChange = affectionChange;
+
+    // --- 現在の好感度を取得＆更新 ---
+    let currentAffection = parseInt(localStorage.getItem("好感度"), 10);
+    if (isNaN(currentAffection)) currentAffection = 50;
+    currentAffection += affectionChange;
+    localStorage.setItem("好感度", currentAffection);
+    this.currentAffection = currentAffection;
+
+    // --- ３行テキストを設定 ---
+scoreEl.innerText =
+  '叩けたカバの数：' + score + '\n\n' +
+  '好感度の変化：' + (affectionChange > 0 ? '+' : '') + affectionChange + '\n\n' +
+  '現在の好感度：' + currentAffection;
+
+  scoreEl.style.fontSize = '36px';     // お好みのサイズで
+scoreEl.style.lineHeight = '1.4';    // 行間も微調整すると見た目◎
+    scoreEl.style.whiteSpace = 'pre-line';
+    scoreEl.style.display    = 'block';
+
+    // ポップイン演出は初回だけ
+    scoreEl.classList.remove('pop');
+    void scoreEl.offsetWidth;
+    scoreEl.classList.add('pop');
+  }
+
+  // --- 位置だけは毎回再計算して配置 ---
+  // フレーム情報
+  const frameH = this.frame.displayHeight;
+
+  // canvas → 絶対座標
+  const canvasBounds = this.game.canvas.getBoundingClientRect();
+  const absX = canvasBounds.left + img.x;
+  const absY = canvasBounds.top  + img.y;
+
+  // HTML要素サイズ
+  const scoreW = scoreEl.offsetWidth;
+  const scoreH = scoreEl.offsetHeight;
+
+  // オフセット割合（位置調整）
+  const scoreOffsetY = frameH * 0.02; // 調整可
+
+  // left/top 計算
+  const left = absX - scoreW / 2;
+  const top  = (absY - img.displayHeight / 2) + scoreOffsetY;
+
+  Object.assign(scoreEl.style, {
+    position: 'absolute',
+    left:     `${left}px`,
+    top:      `${top}px`,
+  });
+
+  // --- ホームへ戻るボタンを一度だけ追加 ---
+  if (!this.homeButtonEl) {
+    // 1) ボタン要素を作って基本スタイル
+    const btn = document.createElement('div');
+    btn.id = 'homeButton';
+    btn.innerText = 'ホームへ戻る';
+    Object.assign(btn.style, {
+      position: 'absolute',
+      fontFamily: 'Fredoka One, sans-serif',
+      fontSize: '24px',
+      color: '#ffffff',
+      background: 'rgba(0,0,0,0.8)',
+      padding: '8px 16px',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      textAlign: 'center',
+      zIndex: 2000,
+    });
+
+    // 2) クリックで遷移
+    btn.addEventListener('click', () => {
+      window.location.href = '../selection/selection.html';
+    });
+
+    // 3) DOM に追加
+    document.getElementById('game-container').appendChild(btn);
+    this.homeButtonEl = btn;
+  }
+
+  // --- ボタンの位置をスコア表示のすぐ下に合わせる ---
+  const btn = this.homeButtonEl;
+  const btnW = btn.offsetWidth;
+  const btnH = btn.offsetHeight;
+
+  // ボタンの top は score の下端 + 10px
+  const btnLeft = left + (scoreW - btnW)/2;
+  const btnTop  = top + scoreH + 40;
+
+  Object.assign(btn.style, {
+    left: `${btnLeft}px`,
+    top:  `${btnTop}px`,
+  });
+  
+};
+
+
+
+
+
+
+
+    // カメラ初期設定
+    const camera = this.cameras.main;
+    camera.setZoom(1);
+    camera.centerOn(this.scale.width / 2, this.scale.height / 2);
+
+    // リサイズ対応
+    this.scale.on('resize', resize, this);
+    resize.call(this);
+
+    // 一度だけズームさせる
+    this.hasZoomed = false;
+
+    this.input.on('pointerdown', () => {
+        // if (this.hasZoomed) return; // すでにズーム済みなら無視
+
+        this.hasZoomed = true;
+
+        this.tweens.add({
+            targets: camera,
+            zoom: 3,
+            duration: 1700,
+            ease: 'Power2',
+            onUpdate: () => {
+                camera.centerOn(this.scale.width / 2, this.scale.height / 2);
+            },
             onComplete: () => {
-              if (gameOver) return;
-              // 隠れきったら再配置して再度アニメーション
-              this.time.delayedCall(1000, () => {
-                if (kaba.clicked || gameOver) return;
-                const newPos = getRandomPositionAndSize();
-                Object.assign(kaba, newPos);
-                kaba.setPosition(kaba.randX, kaba.hiddenY);
-                kaba.setDisplaySize(kaba.size, kaba.size);
-                kaba.setDepth(kaba.size);
-                kaba.setTexture('kaba');
-                updateMask.call(this, kaba);
-                animateKaba.call(this, kaba);
-              });
+
+                hitArea.setInteractive();
+
+                // ホバーイベントをズーム後に登録
+                hitArea.on('pointerover', () => {
+                    drawButton(buttonBackground, 0xff6347, 0xffffff);
+                });
+                hitArea.on('pointerout', () => {
+                    drawButton(buttonBackground, 0xE33A26, 0xF87B0E);
+                });
+                this.startButtonContainer.setInteractive(
+                    new Phaser.Geom.Rectangle(0, 0, this.startButtonContainer.width, this.startButtonContainer.height),
+                    Phaser.Geom.Rectangle.Contains
+                );
+            }
+        });
+    });
+
+    // クリック処理（hitAreaに移す）
+    hitArea.on('pointerdown', () => {
+        this.startButtonContainer.setVisible(false); // ボタンを非表示
+        this.rogoContainer.setVisible(false);        // ロゴも非表示
+        showHtmlCountdown(3, () => {
+            
+            showTimer(30, () => {
+                this.isGameOver = true;
+                this.hippoGroup.getChildren().forEach(hippo => {
+                    hippo.disableInteractive();
+                });
+                this.diveAllHippos();
+
+                  // 1秒後に結果画像をスライドイン
+  this.time.delayedCall(1000, () => {
+    document.getElementById('endMessage').style.display = 'none';
+    this.showResult();
+
+
+    
+        this.time.delayedCall(1000, () => {
+      this.showResultScore();
+        resize.call(this);
+    });
+  });
+
+            });
+
+            const scoreEl = document.getElementById('score');
+            scoreEl.style.display = 'block';
+            scoreEl.style.opacity = '1'; 
+
+            for (let i = 0; i < 5; i++) {
+                // 0〜2000ms の間でランダムに遅延
+                const delay = Phaser.Math.Between(0, 2000);
+                this.time.delayedCall(delay, () => {
+                    spawnRandomHippo.call(this);
+                });
+            }
+        });
+    });
+}
+
+function spawnRandomHippo() {
+    if (this.isGameOver) return;
+    const region    = this.hippoRegion;
+    const regionW   = region.xMax - region.xMin;
+    const regionH   = region.yMax - region.yMin;
+
+    // ランダム相対位置
+    const relX = Math.random();
+    const relY = Math.random();
+    const finalX = region.xMin + relX * regionW;
+    const finalY = region.yMin + relY * regionH;
+
+    // scale 計算
+    const baseScale  = Phaser.Math.Linear(0.04, 0.12, relY);
+    const finalScale = baseScale * this.frameScale;
+    const imgH = this.textures.get('kaba').getSourceImage().height * finalScale;
+    const startY = finalY + imgH;
+
+    // ① 水中 (y=startY) に配置
+    const hippo = this.add.image(finalX, startY, 'kaba')
+        .setOrigin(0.5, 1)
+        .setScale(finalScale);
+
+    // ② 水面マスク
+    const maskG = this.make.graphics({ add: false });
+    maskG.fillStyle(0xffffff);
+    maskG.fillRect(0, 0, this.scale.width, finalY);
+    hippo.setMask(maskG.createGeometryMask());
+
+    // プロパティ保持
+    hippo.startY        = startY;
+    hippo.finalY        = finalY;
+    hippo.maskGraphics  = maskG;
+    hippo.clicked       = false;     // クリック済みフラグ
+    hippo.delayedDescent= null;      // タイマー参照
+    hippo.descentTween  = null;      // tween 参照
+
+    // ③ 上昇 → 1s 待機 → 下降 → 再出現
+    const riseTween = this.tweens.add({
+      targets: hippo,
+      y: finalY,
+      duration: 800,
+      ease: 'Power2',
+      onComplete: () => {
+        // 1秒後に本来の下降ツイーンを開始
+        hippo.delayedDescent = this.time.delayedCall(500, () => {
+          hippo.descentTween = this.tweens.add({
+            targets: hippo,
+            y: hippo.startY,
+            duration: 800,
+            ease: 'Power2',
+            onComplete: () => {
+              hippo.destroy();
+        if (!hippo.clicked) {
+          spawnRandomHippo.call(this);
+        }
             }
           });
         });
       }
     });
-  }
 
-  // カバのスプライトを最大数分生成し、配列に追加
-  for (let i = 0; i < maxKabas; i++) {
-    const { randX, randY, size, hiddenY } = getRandomPositionAndSize();
-    const kaba = this.add.image(randX, hiddenY, 'kaba')
-      .setOrigin(0.5)
-      .setDisplaySize(size, size)
-      .setInteractive()
-      .setDepth(size);
 
-    // カスタムプロパティをspriteに追加
-    Object.assign(kaba, { randX, randY, size, hiddenY, clicked: false });
-    updateMask.call(this, kaba);
+    // ④ クリックで即沈める
+    hippo.setInteractive({ cursor: 'pointer' });
+    hippo.on('pointerdown', () => {
+      if (hippo.clicked) return;          // 二重実行ガード
+      hippo.clicked = true;
 
-    // クリック時の処理
-    kaba.on('pointerdown', () => {
-      if (kaba.clicked || gameOver) return;
-      kaba.clicked = true;            // 一度だけ処理する
-      score++;                       // スコア加算
-      scoreText.setText(`スコア: ${score}`);
-      kaba.setTexture('kabaDown');   // 叩いた画像に切替
-      // 叩いた後に隠れるアニメーション
+      // 既存の待機／下降をキャンセル
+      if (hippo.delayedDescent) hippo.delayedDescent.remove(false);
+      if (hippo.descentTween)     this.tweens.killTweensOf(hippo);
+
+      // ① テクスチャ差し替え
+      hippo.setTexture('kabaDown');
+
+    // ★ スコア加算＆ポップ演出
+    this.score += 1;
+    const scoreEl = document.getElementById('score');
+    scoreEl.textContent = this.score;
+
+  
+
+      // ② 下降だけ再実行
       this.tweens.add({
-        targets: kaba,
-        y: kaba.hiddenY,
+        targets: hippo,
+        y: hippo.startY,
         duration: 500,
-        ease: 'Sine.easeIn',
+        ease: 'Power2',
         onComplete: () => {
-          this.time.delayedCall(1000, () => {
-            if (gameOver) return;
-            // 再配置して再度アニメーション
-            const newPos = getRandomPositionAndSize();
-            Object.assign(kaba, newPos);
-            kaba.setPosition(kaba.randX, kaba.hiddenY);
-            kaba.setDisplaySize(kaba.size, kaba.size);
-            kaba.setDepth(kaba.size);
-            kaba.setTexture('kaba');
-            updateMask.call(this, kaba);
-            kaba.clicked = false;
-            animateKaba.call(this, kaba);
-          });
+          hippo.destroy();
+          // クリック時は再出現不要ならここは不要、
+          // もし再出現したいなら次行をアンコメント
+          spawnRandomHippo.call(this);
         }
       });
     });
 
-    kabaSprites.push(kaba);
-  }
-
-  // スタートボタンを配置（最初は非インタラクト）
-  const startButton = this.add.image(this.scale.width / 2, this.scale.height - 220, 'startButton')
-    .setOrigin(0.5)
-    .setDisplaySize(130, 50)
-    .disableInteractive();
-
-  // ロゴテキストを配置
-  const kabakabaPanic = this.add.image(this.scale.width / 2, this.scale.height - 470, 'kabakabaPanic')
-    .setOrigin(0.5)
-    .setDisplaySize(460 * 1, 234 * 1);
-
-  const ruleText = this.add.text(this.scale.width / 2 , this.scale.height / 2 + 40, '30秒以内にカバをクリック！！', {
-    fontSize: '24px',
-    fill: '#f90',
-    fontStyle: 'bold',
-    padding: { top: 6, bottom: 6 } 
-  })
-    .setOrigin(0.5) 
-
-
-  // ホームへ戻るボタンを右下に配置
-  const homeText = this.add.text(this.scale.width - 20, this.scale.height - 20, 'ホームへ戻る', {
-    fontSize: '24px',
-    fill: '#fff',
-    fontStyle: 'bold'
-  })
-    .setOrigin(1, 1)                      // 右下基準に配置
-    .setInteractive({ useHandCursor: true });
-
-  // クリックで別ページへ遷移
-  homeText.on('pointerdown', () => {
-    window.location.href = '../selection/selection.html';  // 遷移先URLを適宜変更
-  });
-
-  // 画面クリックでズームインアニメーション＆スタートボタンを有効化
-  screenBg.on('pointerdown', () => {
-    if (zoomed) return;        // 既にズーム済みなら無視
-    zoomed = true;
-    // 画面領域を拡大
-    this.tweens.add({ targets: screenBg, x: this.scale.width/2, y: this.scale.height/2 + 48, displayWidth: this.scale.width, displayHeight: this.scale.height, duration: 1200, ease: 'Power2' });
-    // フレームも拡大
-    this.tweens.add({ targets: frame,       x: this.scale.width/2, y: this.scale.height/2 + 48, displayWidth: this.scale.width*1.75, displayHeight: this.scale.height*2.5, duration:1200, ease:'Power2' });
-    // スタートボタンを中央へ移動＆サイズ拡大後、クリック可能に
-    this.tweens.add({ targets: startButton, x: this.scale.width/2, y: this.scale.height/2 +294, displayWidth:300, displayHeight:120, duration:1200, ease:'Power2', onComplete: () => {
-      startButton.setInteractive({ useHandCursor: true });
-    }});
-    // ロゴも拡大
-    this.tweens.add({ targets: kabakabaPanic, x: this.scale.width/2, y: this.scale.height/2 -224, displayWidth:460*2.1, displayHeight:234*2.1, duration:1200, ease:'Power2' });
-
-    this.tweens.add({
-    targets: ruleText,
-    // 中心位置はそのまま、scaleX/Y でサイズを倍に
-    scaleX: 2,
-    scaleY: 2,
-    // 必要に応じて y 座標を少しずらす場合は uncomment
-     y: this.scale.height/2 + 15,
-    duration: 1200,
-    ease: 'Power2'
-  });
-  });
-
-                  
-
-  // スタートボタン押下時の処理
-  startButton.on('pointerdown', () => {
-    homeText.setVisible(false);
-    startButton.setVisible(false);    // スタートボタン非表示
-    kabakabaPanic.setVisible(false); // ロゴ非表示
-    ruleText.setVisible(false)
-
-    // カウントダウンテキストを中央に表示
-    const countdownText = this.add.text(this.scale.width/2, this.scale.height/2, '', { fontSize:'80px', fill:'#fff', fontStyle: 'bold' }).setOrigin(0.5);
-    const countdownNumbers = ['3','2','1',''];
-    let index = 0;
-
-    // カウントダウンを順番に表示する関数
-    const showCountdown = () => {
-      countdownText.setText(countdownNumbers[index]);
-      if (index < countdownNumbers.length -1) {
-        index++;
-        this.time.delayedCall(1000, showCountdown);
-      } else {
-        // カウント終了後、ゲーム開始処理
-        countdownText.destroy();
-        scoreText.setVisible(true);    // スコア表示
-
-        let remainingTime = 30;       // 制限時間
-        const timerText = this.add.text(20,20, `残り: ${remainingTime} 秒`, { fontSize:'28px', fill:'#ff0',  fontStyle: 'bold', padding: { top: 6, bottom: 6 } });
-
-        // タイマーイベント（1秒ごとにカウントダウン）
-        this.time.addEvent({
-          delay:1000,
-          repeat: remainingTime -1,
-          callback: ()=>{
-            remainingTime--;
-            timerText.setText(`残り: ${remainingTime} 秒`);
-            if (remainingTime === 10){
-              scoreText.setVisible(false);
-            }
-            if (remainingTime === 0) {
-              gameOver = true;
-
-
-              // かば下がらないバグ修正：予約されている別のTween／タイマーが動いてしまい、位置を元に戻してしまっているのが原因
-              // すべてのカバのTweenを停止
-              kabaSprites.forEach(kaba => {
-                this.tweens.killTweensOf(kaba);
-              });
-                //すべての未実行のタイマーをキャンセル
-              this.time.removeAllEvents();
-
-
-
-              // 全カバを強制的に穴に戻す
-              kabaSprites.forEach(kaba => {
-                this.tweens.add({ targets:kaba, y:kaba.hiddenY, duration:800, ease:'Sine.easeIn' });
-              });
-
-              timerText.setVisible(false);
-              scoreText.setVisible(false);
-
-              // 「ゲーム終了」テキストを画面中央に生成して透明状態から表示
-              const gameOverText=this.add.text(this.scale.width/2,this.scale.height/2,'ゲーム終了',{fontSize:'64px',fill:'#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } }).setOrigin(0.5); 
-              this.time.delayedCall(1500, () => {
-                gameOverText.destroy()
-              // 制限時間が 0 になった瞬間のブロック内に追加
-              this.tweens.add({
-                targets: resultImage,
-                y: this.scale.height/2,
-                alpha: 1,
-                duration: 1000,
-                ease: 'Power2'
-              });
-              this.time.delayedCall(1000, () => {
-                // 好感度の計算
-                let affectionChange = 0;
-                if (score >= 80) {
-                  affectionChange = 30;
-                } else if (score >= 70) {
-                  affectionChange = 18;
-                } else if (score >= 60) {
-                  affectionChange = 6;
-                } else {
-                  affectionChange = -6;
-                }
-
-                // 現在の好感度を取得して更新
-                let currentAffection = parseInt(localStorage.getItem("好感度")) || 50;
-                currentAffection += affectionChange;
-                localStorage.setItem("好感度", currentAffection);
-
-                // スコアと好感度の変化を表示
-                this.add.text(this.scale.width/2, this.scale.height/2 - 130, `叩けたカバの数：${score}匹`, {fontSize:'32px', fill:'#000', fontStyle: 'bold', padding: { top: 6, bottom: 6 } })
-                .setOrigin(0.5)
-                .setDepth(1001);
-
-                this.add.text(this.scale.width/2, this.scale.height/2 - 30, `好感度の変化：${affectionChange > 0 ? '+' : ''}${affectionChange}`, {fontSize:'32px', fill:'#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } })
-                .setOrigin(0.5)
-                .setDepth(1001);
-
-                this.add.text(this.scale.width/2, this.scale.height/2 + 70, `現在の好感度：${currentAffection}`, {fontSize:'32px', fill:'#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } })
-                .setOrigin(0.5)
-                .setDepth(1001);
-
-                const gameOverHomeText = this.add.text(this.scale.width/ 2, this.scale.height / 2 + 250, 'ホームへ戻る', {
-                  fontSize: '24px', fill: '#000',fontStyle: 'bold', padding: { top: 6, bottom: 6 } 
-                })
-                .setOrigin(0.5).setDepth(1002)
-                .setInteractive({ useHandCursor: true })
-                .on('pointerdown', () => window.location.href = '../selection/selection.html');
-              });
-
-              });
-
-  
-            }
-          }
-        });
-
-        // 各カバの最初の出現アニメーションをランダムなタイミングで開始
-        kabaSprites.forEach(kaba => {
-          this.time.delayedCall(Phaser.Math.Between(200,5000), ()=>{
-            animateKaba.call(this, kaba);
-          });
-        });
-      }
-    };
-
-    showCountdown();  // カウントダウン開始
-  });
+    // 深度を Y に合わせる
+    hippo.setDepth(finalY);
+    this.hippoGroup.add(hippo);
 }
 
-// 未使用
-function update() {}
 
-window.addEventListener('resize', () => {
-  game.scale.resize(window.innerWidth, window.innerHeight);
-});
+function resize() {
+    const width = this.scale.width;
+    const height = this.scale.height;
+
+    // --- フレームの再配置・リサイズ処理 ---
+    this.bg.setDisplaySize(width, height);
+    this.frame.setPosition(width / 2, height / 2 + 20);
+
+    const frameRatio = this.frame.width / this.frame.height;
+    let frameDisplayWidth, frameDisplayHeight;
+    if (width / height > frameRatio) {
+        frameDisplayWidth  = height * frameRatio;
+        frameDisplayHeight = height;
+    } else {
+        frameDisplayWidth  = width;
+        frameDisplayHeight = width / frameRatio;
+    }
+    this.frame.setDisplaySize(frameDisplayWidth, frameDisplayHeight);
+
+    // const padX = frameDisplayWidth  * 0.23;
+    // const padY = frameDisplayHeight * 0.450;
+    const padX = frameDisplayWidth  * 0.266;
+    const padY = frameDisplayHeight * 0.425;
+
+    // ここでセンターを下にずらすオフセットを定義
+    const offsetCenterY = frameDisplayHeight * 0.066; // フレーム高さの5%だけ下に
+
+    this.hippoRegion = {
+      xMin: this.frame.x - frameDisplayWidth  / 2 + padX,
+      xMax: this.frame.x + frameDisplayWidth  / 2 - padX,
+      yMin: this.frame.y - frameDisplayHeight / 2 + padY + offsetCenterY,
+      yMax: this.frame.y + frameDisplayHeight / 2 - padY + offsetCenterY
+    };
+
+    // // --- デバッグ：赤い枠を描く ---
+    // const g = this.debugGraphics;
+    // g.clear();
+    // g.lineStyle(2, 0xff0000, 1);  // 線幅2, 赤
+    // const w = this.hippoRegion.xMax - this.hippoRegion.xMin;
+    // const h = this.hippoRegion.yMax - this.hippoRegion.yMin;
+    // g.strokeRect(
+    //   this.hippoRegion.xMin,
+    //   this.hippoRegion.yMin,
+    //   w, h
+    // );
+
+
+
+
+  
+    // --- フレームのスケール値を保存 ---
+    const frameScaleX = frameDisplayWidth  / this.frame.width;
+    const frameScaleY = frameDisplayHeight / this.frame.height;
+    // どちらか一方、または平均を取ってもよい
+    this.frameScale = (frameScaleX + frameScaleY) / 2;
+
+    // ロゴの位置をフレーム中心に（高さに応じてオフセット）
+    const logoYOffset = this.frame.displayHeight * 0.13;  // ← 高さの15%分上にずらす
+    this.rogo.setPosition(this.frame.x, this.frame.y - logoYOffset);
+
+    // フレームのスケールに合わせてロゴを相対スケーリング（25%）
+    const scaleFactor = 0.25;
+    this.rogo.setScale(frameScaleX * scaleFactor, frameScaleY * scaleFactor);
+
+    // フレームのスケール値からスケーリング
+    const frameScale = (frameScaleX + frameScaleY) / 2;
+
+    // ボタンの位置をフレーム下あたりに配置
+    this.startButtonContainer.setPosition(
+        this.frame.x - (this.startButtonContainer.width * frameScale) / 2,
+        this.frame.y + this.frame.displayHeight * 0.09
+    );
+
+    // スケーリングでズームに対応
+    this.startButtonContainer.setScale(frameScale);
+
+
+
+// --- 既存のフレームリサイズ処理 ---
+  const frameX = this.frame.x;
+  const frameY = this.frame.y;
+  const frameW = this.frame.displayWidth;
+  const frameH = this.frame.displayHeight;
+
+  // オフセット割合（上で定義したもの）
+  const timerOffsetX = -0.25;
+  const timerOffsetY = 0.01;
+  const scoreOffsetX = -0.22;
+  const scoreOffsetY = 0.01;
+
+  // タイマー（左上寄せ）
+  const timerEl = document.getElementById('timer');
+  timerEl.style.left = 
+    `${frameX - frameW/2 + frameW * timerOffsetX}px`;
+  timerEl.style.top  = 
+    `${frameY - frameH/2 + frameH * timerOffsetY}px`;
+
+  // スコア（右上寄せ）
+  const scoreEl = document.getElementById('score');
+  const scoreW  = scoreEl.offsetWidth;
+  scoreEl.style.left = 
+    `${frameX + frameW/2 - scoreW - frameW * scoreOffsetX}px`;
+  scoreEl.style.top  = 
+    `${frameY - frameH/2 + frameH * scoreOffsetY}px`;
+
+    // --- 全カバを再配置・再スケール ---
+  const region = this.hippoRegion;
+  const regionW = region.xMax - region.xMin;
+  const regionH = region.yMax - region.yMin;
+
+  this.hippoGroup.getChildren().forEach(hippo => {
+    // 再計算：ワールド座標
+    hippo.x = region.xMin + hippo.relX * regionW;
+    hippo.finalY = region.yMin + hippo.relY * regionH;
+
+    // 再スケール
+    const baseScale = Phaser.Math.Linear(0.04, 0.12, hippo.relY);
+    hippo.setScale(baseScale * this.frameScale);
+
+    // 再配置：もしまだ上昇中なら tween が override してくれるので、完了済みなら直接セット
+    if (!hippo._tween || hippo._tween.isPlaying() === false) {
+      hippo.y = hippo.finalY;
+    }
+
+    // マスクも更新（水面 = hippo.finalY）
+    const mg = hippo.maskGraphics;
+    mg.clear();
+    mg.fillStyle(0xffffff);
+    mg.fillRect(0, 0, this.scale.width, hippo.finalY);
+  });
+  
+  if (this.resultSprite) {
+    const img      = this.resultSprite;
+    const frameX   = this.frame.x;
+    const frameY   = this.frame.y;
+    const frameW   = this.frame.displayWidth;
+    const frameH   = this.frame.displayHeight;
+    const tex      = this.textures.get('result').getSourceImage();
+    const aspect   = tex.width / tex.height;
+
+    // 再計算：表示サイズをフレーム幅の60%
+    const displayW = frameW * 0.22;
+    const displayH = displayW / aspect;
+
+    const stopY = frameY - frameH * 0.021;
+
+    // 上端からスタート位置も再計算
+    const startY = frameY - frameH/2 - displayH/2;
+
+    // 位置とサイズを更新
+    img.x = frameX;
+    // tween中は y を壊さないように、フェードイン完了後だけ再センター：
+    if (!img._tweenIsRunning) {
+      img.y = stopY;
+    } else {
+      img.y = Math.max(img.y, startY);
+    }
+    img.setDisplaySize(displayW, displayH);
+  }
+
+  if (this.resultSprite && this.hasShownResultScore) {
+    this.showResultScore();
+  }
+}
